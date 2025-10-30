@@ -59,12 +59,12 @@ def record_audio(file_path, timeout=10, phrase_time_limit=None, retries=3, energ
                 return
         except sr.WaitTimeoutError:
             logging.warning(f"Listening timed out, retrying... ({attempt + 1}/{retries})")
+            if attempt == retries - 1:
+                raise Exception("Recording failed: No speech detected after all retries")
         except Exception as e:
             logging.error(f"Failed to record audio: {e}")
-            if attempt == retries -1:
+            if attempt == retries - 1:
                 raise
-        
-    logging.error("Recording failed after all retries")
 
 def play_audio(file_path):
     """

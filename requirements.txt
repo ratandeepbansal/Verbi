@@ -37,3 +37,5 @@ ollama
 pydub
 customtkinter
 pyinstaller
+pyobjc-framework-AVFoundation
+pyobjc-framework-Cocoa

@@ -11,6 +11,12 @@ from voice_assistant.transcription import transcribe_audio
 from voice_assistant.response_generation import generate_response
 from voice_assistant.text_to_speech import text_to_speech
 from voice_assistant.config import Config
+from voice_assistant.permissions import (
+    check_microphone_permission,
+    request_microphone_permission,
+    get_permission_instructions,
+    open_system_preferences_microphone
+)
 from voice_assistant.api_key_manager import (
     get_transcription_api_key,
     get_response_api_key,
@@ -52,6 +58,10 @@ class BackendController:
         except Exception as e:
             logger.error(f"Configuration validation failed: {e}")
 
+        # Request microphone permission on startup
+        logger.info("Requesting microphone permission...")
+        request_microphone_permission()
+
     def set_callbacks(
         self,
         on_status_update: Callable[[str], None],
@@ -77,6 +87,16 @@ class BackendController:
         """Start a new voice conversation cycle."""
         if self.is_processing:
             logger.warning("Already processing a conversation")
+            return
+
+        # Check microphone permission before starting
+        if not check_microphone_permission():
+            logger.error("Microphone permission not granted")
+            if self.on_error:
+                error_msg = f"Microphone access denied.\n\n{get_permission_instructions()}\n\nClick OK to open System Settings."
+                self.on_error(error_msg)
+                # Open system settings
+                open_system_preferences_microphone()
             return
 
         # Run in background thread to avoid blocking UI
