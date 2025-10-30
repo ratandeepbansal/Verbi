@@ -4,13 +4,17 @@ import customtkinter as ctk
 from typing import Optional
 import sys
 import os
+import logging
 
 from gui.chat_area import ChatArea
 from gui.animations import StatusIndicator
+from gui.backend_controller import BackendController
 
 # Set appearance mode and default color theme
 ctk.set_appearance_mode("System")  # Modes: "System" (default), "Dark", "Light"
 ctk.set_default_color_theme("blue")  # Themes: "blue" (default), "green", "dark-blue"
+
+logger = logging.getLogger(__name__)
 
 
 class VerbiMainWindow(ctk.CTk):
@@ -32,6 +36,15 @@ class VerbiMainWindow(ctk.CTk):
         # Configure grid layout (4 rows: header, status_indicator, chat, controls)
         self.grid_rowconfigure(2, weight=1)  # Chat area expands
         self.grid_columnconfigure(0, weight=1)
+
+        # Initialize backend controller
+        self.backend = BackendController()
+        self.backend.set_callbacks(
+            on_status_update=self.handle_status_update,
+            on_animation_update=self.handle_animation_update,
+            on_message_add=self.handle_message_add,
+            on_error=self.handle_error
+        )
 
         # Create UI sections
         self.create_header()
@@ -182,41 +195,42 @@ class VerbiMainWindow(ctk.CTk):
         demo_btn.grid(row=0, column=3, padx=5)
 
     def toggle_recording(self):
-        """Toggle audio recording (placeholder)."""
-        current_state = self.mic_button.cget("text")
-        if current_state == "🎤":
-            # Start recording
-            self.mic_button.configure(text="⏸", fg_color="red")
-            self.stop_btn.configure(state="normal")
-            self.update_status("Listening...")
-            self.status_indicator.set_state("listening")
-            print("Recording started...")  # Placeholder
-        else:
-            # Stop recording
-            self.mic_button.configure(text="🎤", fg_color=["#3B8ED0", "#1F6AA5"])
-            self.stop_btn.configure(state="disabled")
-            self.update_status("Processing...")
-            self.status_indicator.set_state("thinking")
-            print("Recording stopped...")  # Placeholder
+        """Start voice conversation with backend."""
+        if self.backend.is_processing:
+            logger.warning("Already processing a conversation")
+            return
+
+        # Disable mic button while processing
+        self.mic_button.configure(state="disabled")
+        self.stop_btn.configure(state="normal")
+
+        # Start conversation in background
+        self.backend.start_conversation()
+
+        logger.info("Voice conversation started")
 
     def stop_action(self):
         """Stop current action (recording/playback)."""
-        self.mic_button.configure(text="🎤", fg_color=["#3B8ED0", "#1F6AA5"])
+        self.backend.stop()
+        self.mic_button.configure(state="normal")
         self.stop_btn.configure(state="disabled")
         self.update_status("Ready")
         self.status_indicator.set_state("idle")
-        print("Action stopped")  # Placeholder
+        logger.info("Action stopped")
 
     def clear_conversation(self):
         """Clear the conversation history."""
-        # Clear all messages
+        # Clear backend history
+        self.backend.clear_history()
+
+        # Clear all messages from UI
         self.chat_area.clear_messages()
 
         # Add welcome message back
         self.add_welcome_message()
         self.update_status("Conversation cleared")
         self.status_indicator.set_state("idle")
-        print("Conversation cleared")  # Placeholder
+        logger.info("Conversation cleared")
 
     def demo_conversation(self):
         """Demo the chat UI with sample messages and animations."""
@@ -272,9 +286,68 @@ class VerbiMainWindow(ctk.CTk):
         """Update the status label."""
         self.status_label.configure(text=message)
 
+    # Backend callback handlers
+    def handle_status_update(self, status: str):
+        """Handle status updates from backend (thread-safe)."""
+        self.after(0, lambda: self.update_status(status))
+
+    def handle_animation_update(self, state: str):
+        """Handle animation state updates from backend (thread-safe)."""
+        self.after(0, lambda: self.status_indicator.set_state(state))
+        # Re-enable mic button when back to idle
+        if state == "idle":
+            self.after(0, lambda: self.mic_button.configure(state="normal"))
+            self.after(0, lambda: self.stop_btn.configure(state="disabled"))
+
+    def handle_message_add(self, message: str, sender: str):
+        """Handle adding messages from backend (thread-safe)."""
+        self.after(0, lambda: self.chat_area.add_message(message, sender))
+
+    def handle_error(self, error_message: str):
+        """Handle errors from backend (thread-safe)."""
+        self.after(0, lambda: self._show_error_dialog(error_message))
+        self.after(0, lambda: self.mic_button.configure(state="normal"))
+        self.after(0, lambda: self.stop_btn.configure(state="disabled"))
+
+    def _show_error_dialog(self, error_message: str):
+        """Show error dialog to user."""
+        logger.error(f"Showing error dialog: {error_message}")
+
+        # Create error dialog
+        dialog = ctk.CTkToplevel(self)
+        dialog.title("Error")
+        dialog.geometry("400x200")
+        dialog.transient(self)
+        dialog.grab_set()
+
+        # Center dialog
+        dialog.update_idletasks()
+        x = self.winfo_x() + (self.winfo_width() // 2) - (dialog.winfo_width() // 2)
+        y = self.winfo_y() + (self.winfo_height() // 2) - (dialog.winfo_height() // 2)
+        dialog.geometry(f"+{x}+{y}")
+
+        # Error message
+        error_label = ctk.CTkLabel(
+            dialog,
+            text=f"⚠️ Error\n\n{error_message}",
+            font=ctk.CTkFont(size=14),
+            wraplength=350
+        )
+        error_label.pack(pady=20, padx=20)
+
+        # OK button
+        ok_btn = ctk.CTkButton(
+            dialog,
+            text="OK",
+            command=dialog.destroy,
+            width=100
+        )
+        ok_btn.pack(pady=10)
+
     def on_closing(self):
         """Handle window close event."""
-        print("Closing application...")
+        logger.info("Closing application...")
+        self.backend.stop()
         self.quit()
         self.destroy()
 

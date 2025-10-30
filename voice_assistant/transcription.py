@@ -8,7 +8,14 @@ import time
 from colorama import Fore, init
 from openai import OpenAI
 from groq import Groq
-from deepgram import DeepgramClient,PrerecordedOptions,FileSource
+try:
+    # Try newer Deepgram SDK (v5+)
+    from deepgram import DeepgramClient
+    DEEPGRAM_SDK_V5 = True
+except ImportError:
+    # Fallback to older SDK
+    from deepgram import DeepgramClient, PrerecordedOptions, FileSource
+    DEEPGRAM_SDK_V5 = False
 
 fast_url = "http://localhost:8000"
 checked_fastwhisperapi = False
@@ -80,17 +87,29 @@ def _transcribe_with_groq(api_key, audio_file_path):
 
 
 def _transcribe_with_deepgram(api_key, audio_file_path):
-    deepgram = DeepgramClient(api_key)
     try:
+        # Use new Deepgram SDK v5+ API
+        from deepgram import (
+            DeepgramClient,
+            PrerecordedOptions,
+        )
+
+        deepgram = DeepgramClient(api_key)
+
         with open(audio_file_path, "rb") as file:
             buffer_data = file.read()
 
         payload = {"buffer": buffer_data}
-        options = PrerecordedOptions(model="nova-2", smart_format=True)
-        response = deepgram.listen.prerecorded.v("1").transcribe_file(payload, options)
-        data = json.loads(response.to_json())
+        options = PrerecordedOptions(
+            model="nova-2",
+            smart_format=True,
+        )
 
-        transcript = data['results']['channels'][0]['alternatives'][0]['transcript']
+        response = deepgram.listen.rest.v("1").transcribe_file(
+            payload, options
+        )
+
+        transcript = response["results"]["channels"][0]["alternatives"][0]["transcript"]
         return transcript
     except Exception as e:
         logging.error(f"{Fore.RED}Deepgram transcription error: {e}{Fore.RESET}")

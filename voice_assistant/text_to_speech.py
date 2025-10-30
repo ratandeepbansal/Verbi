@@ -7,7 +7,11 @@ import soundfile as sf
 import requests
 
 from openai import OpenAI
-from deepgram import DeepgramClient, SpeakOptions
+from deepgram import DeepgramClient
+try:
+    from deepgram import SpeakOptions
+except ImportError:
+    SpeakOptions = None
 from elevenlabs.client import ElevenLabs
 from cartesia import Cartesia
 
@@ -40,6 +44,7 @@ def text_to_speech(model: str, api_key:str, text:str, output_file_path:str, loca
             #     audio_file.write(speech_response['data'])  # Ensure this correctly accesses the binary content
 
         elif model == 'deepgram':
+            from deepgram import SpeakOptions
             client = DeepgramClient(api_key=api_key)
             options = SpeakOptions(
                 model="aura-arcas-en", #"aura-luna-en", # https://developers.deepgram.com/docs/tts-models
@@ -47,7 +52,7 @@ def text_to_speech(model: str, api_key:str, text:str, output_file_path:str, loca
                 container="wav"
             )
             SPEAK_OPTIONS = {"text": text}
-            response = client.speak.v("1").save(output_file_path, SPEAK_OPTIONS, options)
+            response = client.speak.rest.v("1").save(output_file_path, SPEAK_OPTIONS, options)
         
         elif model == 'elevenlabs':
             client = ElevenLabs(api_key=api_key)
