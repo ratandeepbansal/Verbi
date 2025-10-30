@@ -5,6 +5,9 @@ from typing import Optional
 import sys
 import os
 
+from gui.chat_area import ChatArea
+from gui.animations import StatusIndicator
+
 # Set appearance mode and default color theme
 ctk.set_appearance_mode("System")  # Modes: "System" (default), "Dark", "Light"
 ctk.set_default_color_theme("blue")  # Themes: "blue" (default), "green", "dark-blue"
@@ -26,12 +29,13 @@ class VerbiMainWindow(ctk.CTk):
         # Center window on screen
         self.center_window()
 
-        # Configure grid layout (3 rows: header, chat, controls)
-        self.grid_rowconfigure(1, weight=1)  # Chat area expands
+        # Configure grid layout (4 rows: header, status_indicator, chat, controls)
+        self.grid_rowconfigure(2, weight=1)  # Chat area expands
         self.grid_columnconfigure(0, weight=1)
 
         # Create UI sections
         self.create_header()
+        self.create_status_indicator()
         self.create_chat_area()
         self.create_controls()
 
@@ -81,45 +85,47 @@ class VerbiMainWindow(ctk.CTk):
         )
         settings_btn.grid(row=0, column=2, sticky="e")
 
+    def create_status_indicator(self):
+        """Create the status indicator animation area."""
+        indicator_frame = ctk.CTkFrame(self, corner_radius=0, fg_color="transparent", height=80)
+        indicator_frame.grid(row=1, column=0, sticky="ew", padx=20, pady=(0, 5))
+        indicator_frame.grid_propagate(False)
+        indicator_frame.grid_columnconfigure(0, weight=1)
+
+        # Create status indicator
+        self.status_indicator = StatusIndicator(indicator_frame)
+        self.status_indicator.grid(row=0, column=0)
+
     def create_chat_area(self):
         """Create the main chat display area."""
         # Chat container
         chat_container = ctk.CTkFrame(self, corner_radius=10)
-        chat_container.grid(row=1, column=0, sticky="nsew", padx=20, pady=10)
+        chat_container.grid(row=2, column=0, sticky="nsew", padx=20, pady=10)
         chat_container.grid_rowconfigure(0, weight=1)
         chat_container.grid_columnconfigure(0, weight=1)
 
-        # Scrollable frame for messages
-        self.chat_scroll = ctk.CTkScrollableFrame(
+        # Use new ChatArea widget
+        self.chat_area = ChatArea(
             chat_container,
             corner_radius=10,
             fg_color="transparent"
         )
-        self.chat_scroll.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
-        self.chat_scroll.grid_columnconfigure(0, weight=1)
+        self.chat_area.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
 
         # Welcome message
         self.add_welcome_message()
 
     def add_welcome_message(self):
         """Add a welcome message to the chat."""
-        welcome_frame = ctk.CTkFrame(self.chat_scroll, fg_color="transparent")
-        welcome_frame.grid(row=0, column=0, pady=20, sticky="ew")
-
-        welcome_text = ctk.CTkLabel(
-            welcome_frame,
-            text="👋 Welcome to Verbi!\n\nClick the microphone button below to start talking.",
-            font=ctk.CTkFont(size=16),
-            text_color="gray",
-            justify="center"
+        self.chat_area.add_system_message(
+            "👋 Welcome to Verbi!\n\nClick the microphone button below to start talking."
         )
-        welcome_text.pack(expand=True)
 
     def create_controls(self):
         """Create the control buttons section."""
         controls_frame = ctk.CTkFrame(self, corner_radius=0, fg_color="transparent")
-        controls_frame.grid(row=2, column=0, sticky="ew", padx=20, pady=(10, 20))
-        controls_frame.grid_columnconfigure((0, 1, 2), weight=1)
+        controls_frame.grid(row=3, column=0, sticky="ew", padx=20, pady=(10, 20))
+        controls_frame.grid_columnconfigure((0, 1, 2, 3), weight=1)
 
         # Clear conversation button
         clear_btn = ctk.CTkButton(
@@ -162,6 +168,19 @@ class VerbiMainWindow(ctk.CTk):
         )
         self.stop_btn.grid(row=0, column=2, padx=5)
 
+        # Demo button (for testing Phase 2 features)
+        demo_btn = ctk.CTkButton(
+            controls_frame,
+            text="Demo",
+            font=ctk.CTkFont(size=14),
+            width=100,
+            height=40,
+            fg_color="green",
+            hover_color="darkgreen",
+            command=self.demo_conversation
+        )
+        demo_btn.grid(row=0, column=3, padx=5)
+
     def toggle_recording(self):
         """Toggle audio recording (placeholder)."""
         current_state = self.mic_button.cget("text")
@@ -170,12 +189,14 @@ class VerbiMainWindow(ctk.CTk):
             self.mic_button.configure(text="⏸", fg_color="red")
             self.stop_btn.configure(state="normal")
             self.update_status("Listening...")
+            self.status_indicator.set_state("listening")
             print("Recording started...")  # Placeholder
         else:
             # Stop recording
             self.mic_button.configure(text="🎤", fg_color=["#3B8ED0", "#1F6AA5"])
             self.stop_btn.configure(state="disabled")
             self.update_status("Processing...")
+            self.status_indicator.set_state("thinking")
             print("Recording stopped...")  # Placeholder
 
     def stop_action(self):
@@ -183,18 +204,64 @@ class VerbiMainWindow(ctk.CTk):
         self.mic_button.configure(text="🎤", fg_color=["#3B8ED0", "#1F6AA5"])
         self.stop_btn.configure(state="disabled")
         self.update_status("Ready")
+        self.status_indicator.set_state("idle")
         print("Action stopped")  # Placeholder
 
     def clear_conversation(self):
         """Clear the conversation history."""
-        # Remove all widgets from chat scroll
-        for widget in self.chat_scroll.winfo_children():
-            widget.destroy()
+        # Clear all messages
+        self.chat_area.clear_messages()
 
         # Add welcome message back
         self.add_welcome_message()
         self.update_status("Conversation cleared")
+        self.status_indicator.set_state("idle")
         print("Conversation cleared")  # Placeholder
+
+    def demo_conversation(self):
+        """Demo the chat UI with sample messages and animations."""
+        # Clear first
+        self.chat_area.clear_messages()
+
+        # Simulate a conversation
+        self.update_status("Demo mode")
+
+        # User message
+        self.chat_area.add_message("Hello Verbi! How are you today?", sender="user")
+
+        # Simulate thinking
+        self.after(800, lambda: self.status_indicator.set_state("thinking"))
+        self.after(800, lambda: self.update_status("Thinking..."))
+
+        # Assistant response
+        self.after(2000, lambda: self.chat_area.add_message(
+            "Hello! I'm doing great, thank you for asking! I'm here to help you with anything you need.",
+            sender="assistant"
+        ))
+
+        # Simulate speaking
+        self.after(2000, lambda: self.status_indicator.set_state("speaking"))
+        self.after(2000, lambda: self.update_status("Speaking..."))
+
+        # User follows up
+        self.after(4000, lambda: self.chat_area.add_message(
+            "Can you tell me about the weather?",
+            sender="user"
+        ))
+
+        # Thinking again
+        self.after(4800, lambda: self.status_indicator.set_state("thinking"))
+        self.after(4800, lambda: self.update_status("Thinking..."))
+
+        # Final response
+        self.after(6000, lambda: self.chat_area.add_message(
+            "I'd be happy to help with the weather! However, I need access to weather services to provide accurate information. Would you like me to set that up?",
+            sender="assistant"
+        ))
+
+        # Back to ready
+        self.after(6500, lambda: self.status_indicator.set_state("idle"))
+        self.after(6500, lambda: self.update_status("Ready"))
 
     def open_settings(self):
         """Open settings dialog (placeholder)."""
