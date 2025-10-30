@@ -35,3 +35,5 @@ cartesia
 soundfile
 ollama
 pydub
+customtkinter
+pyinstaller
