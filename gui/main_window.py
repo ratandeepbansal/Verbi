@@ -5,6 +5,10 @@ from typing import Optional
 import sys
 import os
 import logging
+import tkinter as tk
+from tkinter import filedialog
+import json
+from datetime import datetime
 
 from gui.chat_area import ChatArea
 from gui.animations import StatusIndicator
@@ -31,8 +35,9 @@ class VerbiMainWindow(ctk.CTk):
         self.geometry("900x700")
         self.minsize(700, 500)
 
-        # Center window on screen
-        self.center_window()
+        # Load and apply saved window geometry
+        self.window_config_file = ".verbi_window.json"
+        self.load_window_geometry()
 
         # Configure grid layout (4 rows: header, status_indicator, chat, controls)
         self.grid_rowconfigure(2, weight=1)  # Chat area expands
@@ -47,11 +52,17 @@ class VerbiMainWindow(ctk.CTk):
             on_error=self.handle_error
         )
 
+        # Create menu bar
+        self.create_menu_bar()
+
         # Create UI sections
         self.create_header()
         self.create_status_indicator()
         self.create_chat_area()
         self.create_controls()
+
+        # Setup keyboard shortcuts
+        self.setup_keyboard_shortcuts()
 
         # Bind close event
         self.protocol("WM_DELETE_WINDOW", self.on_closing)
@@ -64,6 +75,129 @@ class VerbiMainWindow(ctk.CTk):
         x = (self.winfo_screenwidth() // 2) - (width // 2)
         y = (self.winfo_screenheight() // 2) - (height // 2)
         self.geometry(f'{width}x{height}+{x}+{y}')
+
+    def load_window_geometry(self):
+        """Load and apply saved window geometry."""
+        try:
+            if os.path.exists(self.window_config_file):
+                with open(self.window_config_file, 'r') as f:
+                    config = json.load(f)
+
+                # Apply saved geometry
+                width = config.get("width", 900)
+                height = config.get("height", 700)
+                x = config.get("x")
+                y = config.get("y")
+
+                if x is not None and y is not None:
+                    self.geometry(f"{width}x{height}+{x}+{y}")
+                else:
+                    self.geometry(f"{width}x{height}")
+                    self.center_window()
+
+                logger.info(f"Window geometry loaded: {width}x{height}+{x}+{y}")
+            else:
+                # No saved geometry, center window
+                self.center_window()
+        except Exception as e:
+            logger.error(f"Error loading window geometry: {e}")
+            self.center_window()
+
+    def save_window_geometry(self):
+        """Save current window geometry."""
+        try:
+            # Get current geometry
+            geometry = self.geometry()  # Returns "widthxheight+x+y"
+            parts = geometry.replace('+', ' ').replace('x', ' ').split()
+
+            config = {
+                "width": int(parts[0]),
+                "height": int(parts[1]),
+                "x": int(parts[2]),
+                "y": int(parts[3])
+            }
+
+            with open(self.window_config_file, 'w') as f:
+                json.dump(config, f, indent=2)
+
+            logger.info(f"Window geometry saved: {geometry}")
+        except Exception as e:
+            logger.error(f"Error saving window geometry: {e}")
+
+    def create_menu_bar(self):
+        """Create the application menu bar."""
+        menubar = tk.Menu(self)
+        self.config(menu=menubar)
+
+        # File Menu
+        file_menu = tk.Menu(menubar, tearoff=0)
+        menubar.add_cascade(label="File", menu=file_menu)
+        file_menu.add_command(label="Save Conversation...", command=self.save_conversation, accelerator="Cmd+S")
+        file_menu.add_command(label="Load Conversation...", command=self.load_conversation, accelerator="Cmd+O")
+        file_menu.add_command(label="Export as Text...", command=self.export_conversation_text)
+        file_menu.add_command(label="Export as Markdown...", command=self.export_conversation_markdown)
+        file_menu.add_separator()
+        file_menu.add_command(label="Settings", command=self.open_settings, accelerator="Cmd+,")
+        file_menu.add_separator()
+        file_menu.add_command(label="Quit", command=self.on_closing, accelerator="Cmd+Q")
+
+        # Edit Menu
+        edit_menu = tk.Menu(menubar, tearoff=0)
+        menubar.add_cascade(label="Edit", menu=edit_menu)
+        edit_menu.add_command(label="Clear Conversation", command=self.clear_conversation, accelerator="Cmd+K")
+
+        # View Menu
+        view_menu = tk.Menu(menubar, tearoff=0)
+        menubar.add_cascade(label="View", menu=view_menu)
+        view_menu.add_command(label="Zoom In", command=lambda: self._adjust_scale(0.1))
+        view_menu.add_command(label="Zoom Out", command=lambda: self._adjust_scale(-0.1))
+        view_menu.add_command(label="Reset Zoom", command=lambda: self._reset_scale())
+
+        # Help Menu
+        help_menu = tk.Menu(menubar, tearoff=0)
+        menubar.add_cascade(label="Help", menu=help_menu)
+        help_menu.add_command(label="About Verbi", command=self.show_about_dialog)
+        help_menu.add_command(label="View Documentation", command=self.open_documentation)
+
+        # Add keyboard accelerators
+        self.bind("<Command-s>", lambda e: self.save_conversation())
+        self.bind("<Control-s>", lambda e: self.save_conversation())
+        self.bind("<Command-o>", lambda e: self.load_conversation())
+        self.bind("<Control-o>", lambda e: self.load_conversation())
+        self.bind("<Command-q>", lambda e: self.on_closing())
+        self.bind("<Control-q>", lambda e: self.on_closing())
+
+        logger.info("Menu bar created")
+
+    def _adjust_scale(self, delta: float):
+        """Adjust the UI scaling."""
+        current_scale = ctk.ScalingTracker.get_window_dpi_scaling(self)
+        new_scale = max(0.8, min(1.5, current_scale + delta))
+        ctk.set_widget_scaling(new_scale)
+        logger.info(f"UI scale adjusted to {new_scale}")
+
+    def _reset_scale(self):
+        """Reset UI scaling to default."""
+        ctk.set_widget_scaling(1.0)
+        logger.info("UI scale reset to default")
+
+    def setup_keyboard_shortcuts(self):
+        """Setup keyboard shortcuts for the application."""
+        # Space bar - Push to talk
+        self.bind("<space>", lambda e: self.toggle_recording())
+
+        # Cmd+K (Mac) or Ctrl+K (Windows/Linux) - Clear conversation
+        self.bind("<Command-k>", lambda e: self.clear_conversation())
+        self.bind("<Control-k>", lambda e: self.clear_conversation())
+
+        # Cmd+, (Mac) or Ctrl+, (Windows/Linux) - Open settings
+        self.bind("<Command-comma>", lambda e: self.open_settings())
+        self.bind("<Control-comma>", lambda e: self.open_settings())
+
+        # Escape - Stop action
+        self.bind("<Escape>", lambda e: self.stop_action())
+
+        logger.info("Keyboard shortcuts configured")
 
     def create_header(self):
         """Create the header section with title and settings."""
@@ -220,7 +354,16 @@ class VerbiMainWindow(ctk.CTk):
         logger.info("Action stopped")
 
     def clear_conversation(self):
-        """Clear the conversation history."""
+        """Clear the conversation history with confirmation."""
+        # Show confirmation dialog
+        self._show_confirmation_dialog(
+            title="Clear Conversation",
+            message="Are you sure you want to clear the conversation history?\n\nThis action cannot be undone.",
+            on_confirm=self._do_clear_conversation
+        )
+
+    def _do_clear_conversation(self):
+        """Actually clear the conversation after confirmation."""
         # Clear backend history
         self.backend.clear_history()
 
@@ -350,10 +493,249 @@ class VerbiMainWindow(ctk.CTk):
         )
         ok_btn.pack(pady=10)
 
+    def _show_confirmation_dialog(self, title: str, message: str, on_confirm):
+        """Show confirmation dialog with Yes/No buttons."""
+        # Create confirmation dialog
+        dialog = ctk.CTkToplevel(self)
+        dialog.title(title)
+        dialog.geometry("400x200")
+        dialog.transient(self)
+        dialog.grab_set()
+
+        # Center dialog
+        dialog.update_idletasks()
+        x = self.winfo_x() + (self.winfo_width() // 2) - 200
+        y = self.winfo_y() + (self.winfo_height() // 2) - 100
+        dialog.geometry(f"+{x}+{y}")
+
+        # Message
+        message_label = ctk.CTkLabel(
+            dialog,
+            text=message,
+            font=ctk.CTkFont(size=14),
+            wraplength=350
+        )
+        message_label.pack(pady=30, padx=20)
+
+        # Button frame
+        button_frame = ctk.CTkFrame(dialog, fg_color="transparent")
+        button_frame.pack(pady=10)
+
+        # Yes button
+        yes_btn = ctk.CTkButton(
+            button_frame,
+            text="Yes",
+            command=lambda: [dialog.destroy(), on_confirm()],
+            width=100,
+            fg_color="red",
+            hover_color="darkred"
+        )
+        yes_btn.pack(side="left", padx=10)
+
+        # No button
+        no_btn = ctk.CTkButton(
+            button_frame,
+            text="No",
+            command=dialog.destroy,
+            width=100,
+            fg_color="gray",
+            hover_color="darkgray"
+        )
+        no_btn.pack(side="left", padx=10)
+
+    def save_conversation(self):
+        """Save conversation history to JSON file."""
+        if not self.backend.chat_history or len(self.backend.chat_history) <= 1:
+            self._show_error_dialog("No conversation to save!")
+            return
+
+        # Ask for file location
+        filename = filedialog.asksaveasfilename(
+            defaultextension=".json",
+            filetypes=[("JSON files", "*.json"), ("All files", "*.*")],
+            initialfile=f"verbi_conversation_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        )
+
+        if filename:
+            try:
+                with open(filename, 'w') as f:
+                    json.dump({
+                        "timestamp": datetime.now().isoformat(),
+                        "messages": self.backend.chat_history
+                    }, f, indent=2)
+                self.update_status(f"Conversation saved")
+                logger.info(f"Conversation saved to {filename}")
+            except Exception as e:
+                logger.error(f"Error saving conversation: {e}")
+                self._show_error_dialog(f"Failed to save conversation: {str(e)}")
+
+    def load_conversation(self):
+        """Load conversation history from JSON file."""
+        filename = filedialog.askopenfilename(
+            filetypes=[("JSON files", "*.json"), ("All files", "*.*")]
+        )
+
+        if filename:
+            try:
+                with open(filename, 'r') as f:
+                    data = json.load(f)
+
+                # Clear current conversation
+                self.backend.chat_history = data.get("messages", [])
+                self.chat_area.clear_messages()
+
+                # Display loaded messages
+                for msg in self.backend.chat_history:
+                    if msg["role"] == "user":
+                        self.chat_area.add_message(msg["content"], "user")
+                    elif msg["role"] == "assistant":
+                        self.chat_area.add_message(msg["content"], "assistant")
+
+                self.update_status("Conversation loaded")
+                logger.info(f"Conversation loaded from {filename}")
+            except Exception as e:
+                logger.error(f"Error loading conversation: {e}")
+                self._show_error_dialog(f"Failed to load conversation: {str(e)}")
+
+    def export_conversation_text(self):
+        """Export conversation as plain text file."""
+        if not self.backend.chat_history or len(self.backend.chat_history) <= 1:
+            self._show_error_dialog("No conversation to export!")
+            return
+
+        filename = filedialog.asksaveasfilename(
+            defaultextension=".txt",
+            filetypes=[("Text files", "*.txt"), ("All files", "*.*")],
+            initialfile=f"verbi_conversation_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
+        )
+
+        if filename:
+            try:
+                with open(filename, 'w') as f:
+                    f.write(f"Verbi Conversation Export\n")
+                    f.write(f"Exported: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+                    f.write("=" * 60 + "\n\n")
+
+                    for msg in self.backend.chat_history:
+                        if msg["role"] == "user":
+                            f.write(f"USER:\n{msg['content']}\n\n")
+                        elif msg["role"] == "assistant":
+                            f.write(f"ASSISTANT:\n{msg['content']}\n\n")
+                        f.write("-" * 60 + "\n\n")
+
+                self.update_status("Conversation exported as text")
+                logger.info(f"Conversation exported to {filename}")
+            except Exception as e:
+                logger.error(f"Error exporting conversation: {e}")
+                self._show_error_dialog(f"Failed to export conversation: {str(e)}")
+
+    def export_conversation_markdown(self):
+        """Export conversation as markdown file."""
+        if not self.backend.chat_history or len(self.backend.chat_history) <= 1:
+            self._show_error_dialog("No conversation to export!")
+            return
+
+        filename = filedialog.asksaveasfilename(
+            defaultextension=".md",
+            filetypes=[("Markdown files", "*.md"), ("All files", "*.*")],
+            initialfile=f"verbi_conversation_{datetime.now().strftime('%Y%m%d_%H%M%S')}.md"
+        )
+
+        if filename:
+            try:
+                with open(filename, 'w') as f:
+                    f.write(f"# Verbi Conversation\n\n")
+                    f.write(f"**Exported:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
+                    f.write("---\n\n")
+
+                    for msg in self.backend.chat_history:
+                        if msg["role"] == "user":
+                            f.write(f"### 👤 User\n\n{msg['content']}\n\n")
+                        elif msg["role"] == "assistant":
+                            f.write(f"### 🤖 Assistant\n\n{msg['content']}\n\n")
+
+                self.update_status("Conversation exported as markdown")
+                logger.info(f"Conversation exported to {filename}")
+            except Exception as e:
+                logger.error(f"Error exporting conversation: {e}")
+                self._show_error_dialog(f"Failed to export conversation: {str(e)}")
+
+    def show_about_dialog(self):
+        """Show About dialog with version info."""
+        dialog = ctk.CTkToplevel(self)
+        dialog.title("About Verbi")
+        dialog.geometry("400x350")
+        dialog.transient(self)
+        dialog.grab_set()
+
+        # Center dialog
+        dialog.update_idletasks()
+        x = self.winfo_x() + (self.winfo_width() // 2) - 200
+        y = self.winfo_y() + (self.winfo_height() // 2) - 175
+        dialog.geometry(f"+{x}+{y}")
+
+        # Title
+        title_label = ctk.CTkLabel(
+            dialog,
+            text="Verbi",
+            font=ctk.CTkFont(size=32, weight="bold")
+        )
+        title_label.pack(pady=(30, 5))
+
+        # Version
+        version_label = ctk.CTkLabel(
+            dialog,
+            text="Version 1.0.0",
+            font=ctk.CTkFont(size=14),
+            text_color="gray"
+        )
+        version_label.pack(pady=5)
+
+        # Description
+        desc_label = ctk.CTkLabel(
+            dialog,
+            text="AI-Powered Voice Assistant\n\nBuilt with CustomTkinter\nSupports multiple AI providers",
+            font=ctk.CTkFont(size=12),
+            justify="center"
+        )
+        desc_label.pack(pady=20)
+
+        # Credits
+        credits_label = ctk.CTkLabel(
+            dialog,
+            text="© 2025 Verbi\nAll rights reserved",
+            font=ctk.CTkFont(size=10),
+            text_color="gray",
+            justify="center"
+        )
+        credits_label.pack(pady=10)
+
+        # Close button
+        close_btn = ctk.CTkButton(
+            dialog,
+            text="Close",
+            command=dialog.destroy,
+            width=100
+        )
+        close_btn.pack(pady=20)
+
+    def open_documentation(self):
+        """Open documentation in web browser."""
+        import webbrowser
+        webbrowser.open("https://github.com/ratandeepbansal/Verbi")
+        logger.info("Opening documentation")
+
     def on_closing(self):
         """Handle window close event."""
         logger.info("Closing application...")
+
+        # Save window geometry
+        self.save_window_geometry()
+
+        # Stop backend
         self.backend.stop()
+
+        # Close application
         self.quit()
         self.destroy()
 

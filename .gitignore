@@ -109,6 +109,7 @@ venv.bak/
 
 # User settings and config
 .verbi_config.json
+.verbi_window.json
 
 # Spyder project settings
 .spyderproject
