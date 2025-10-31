@@ -11,6 +11,7 @@ from voice_assistant.transcription import transcribe_audio
 from voice_assistant.response_generation import generate_response
 from voice_assistant.text_to_speech import text_to_speech
 from voice_assistant.config import Config
+from voice_assistant.temp_file_manager import temp_file_manager
 from voice_assistant.permissions import (
     check_microphone_permission,
     request_microphone_permission,
@@ -157,7 +158,9 @@ class BackendController:
                 self.on_animation_update("listening")
 
             logger.info("Starting audio recording...")
-            record_audio(Config.INPUT_AUDIO)
+            # Register INPUT_AUDIO as temp file
+            input_file = temp_file_manager.register_temp_file(Config.INPUT_AUDIO)
+            record_audio(input_file)
             logger.info("Audio recording complete")
             return True
 
@@ -270,11 +273,11 @@ class BackendController:
             if self.on_animation_update:
                 self.on_animation_update("speaking")
 
-            # Determine output file format
+            # Determine output file format and get temp file path
             if Config.TTS_MODEL in ['openai', 'elevenlabs', 'melotts', 'cartesia']:
-                output_file = 'output.mp3'
+                output_file = temp_file_manager.get_output_file('mp3')
             else:
-                output_file = 'output.wav'
+                output_file = temp_file_manager.get_output_file('wav')
 
             logger.info("Generating speech...")
             tts_api_key = get_tts_api_key()
@@ -313,6 +316,10 @@ class BackendController:
         logger.info("Chat history cleared")
 
     def stop(self):
-        """Stop any ongoing operations."""
+        """Stop any ongoing operations and cleanup temporary files."""
         self.is_processing = False
         logger.info("Backend controller stopped")
+
+        # Cleanup temporary files
+        cleaned_count = temp_file_manager.cleanup_all()
+        logger.info(f"Cleaned up {cleaned_count} temporary files")

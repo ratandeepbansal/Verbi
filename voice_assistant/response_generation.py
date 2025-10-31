@@ -5,7 +5,6 @@ import logging
 from openai import OpenAI
 from groq import Groq
 import ollama
-import lmstudio as lms
 
 from voice_assistant.config import Config
 

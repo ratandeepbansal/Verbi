@@ -59,6 +59,17 @@ class Config:
     INPUT_AUDIO = "test.mp3"
 
     @staticmethod
+    def get_input_audio_path():
+        """
+        Get the path to the input audio file.
+        This method exists for future migration to temp file manager.
+
+        Returns:
+            str: Path to input audio file
+        """
+        return Config.INPUT_AUDIO
+
+    @staticmethod
     def load_from_file(config_file=".verbi_config.json"):
         """
         Load configuration from JSON file if it exists.
