@@ -51,6 +51,13 @@ class BackendController:
         self.on_message_add: Optional[Callable[[str, str], None]] = None
         self.on_error: Optional[Callable[[str], None]] = None
 
+        # Load settings from config file if exists
+        try:
+            if Config.load_from_file():
+                logger.info("Settings loaded from config file")
+        except Exception as e:
+            logger.warning(f"Failed to load settings from file: {e}")
+
         # Validate configuration
         try:
             Config.validate_config()

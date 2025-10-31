@@ -9,6 +9,7 @@ import logging
 from gui.chat_area import ChatArea
 from gui.animations import StatusIndicator
 from gui.backend_controller import BackendController
+from gui.settings_window import SettingsWindow
 
 # Set appearance mode and default color theme
 ctk.set_appearance_mode("System")  # Modes: "System" (default), "Dark", "Light"
@@ -278,9 +279,14 @@ class VerbiMainWindow(ctk.CTk):
         self.after(6500, lambda: self.update_status("Ready"))
 
     def open_settings(self):
-        """Open settings dialog (placeholder)."""
-        print("Settings clicked")  # Placeholder
-        # TODO: Open settings window in Phase 4
+        """Open settings dialog."""
+        logger.info("Opening settings window")
+        settings_window = SettingsWindow(self, on_settings_saved=self.on_settings_saved)
+
+    def on_settings_saved(self):
+        """Handle settings saved callback."""
+        logger.info("Settings saved, updating UI")
+        self.update_status("Settings updated")
 
     def update_status(self, message: str):
         """Update the status label."""

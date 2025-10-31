@@ -107,6 +107,9 @@ ENV/
 env.bak/
 venv.bak/
 
+# User settings and config
+.verbi_config.json
+
 # Spyder project settings
 .spyderproject
 .spyproject

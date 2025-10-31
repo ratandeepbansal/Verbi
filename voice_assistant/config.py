@@ -52,6 +52,60 @@ class Config:
     INPUT_AUDIO = "test.mp3"
 
     @staticmethod
+    def load_from_file(config_file=".verbi_config.json"):
+        """
+        Load configuration from JSON file if it exists.
+
+        Args:
+            config_file: Path to the config file
+        """
+        import json
+
+        if os.path.exists(config_file):
+            try:
+                with open(config_file, 'r') as f:
+                    settings = json.load(f)
+
+                # Update model selection
+                if "transcription_model" in settings:
+                    Config.TRANSCRIPTION_MODEL = settings["transcription_model"]
+                if "response_model" in settings:
+                    Config.RESPONSE_MODEL = settings["response_model"]
+                if "tts_model" in settings:
+                    Config.TTS_MODEL = settings["tts_model"]
+
+                # Update LLM models
+                if "openai_llm" in settings:
+                    Config.OPENAI_LLM = settings["openai_llm"]
+                if "groq_llm" in settings:
+                    Config.GROQ_LLM = settings["groq_llm"]
+                if "ollama_llm" in settings:
+                    Config.OLLAMA_LLM = settings["ollama_llm"]
+
+                # Update API keys if provided
+                if settings.get("openai_api_key"):
+                    Config.OPENAI_API_KEY = settings["openai_api_key"]
+                    os.environ["OPENAI_API_KEY"] = settings["openai_api_key"]
+                if settings.get("groq_api_key"):
+                    Config.GROQ_API_KEY = settings["groq_api_key"]
+                    os.environ["GROQ_API_KEY"] = settings["groq_api_key"]
+                if settings.get("deepgram_api_key"):
+                    Config.DEEPGRAM_API_KEY = settings["deepgram_api_key"]
+                    os.environ["DEEPGRAM_API_KEY"] = settings["deepgram_api_key"]
+                if settings.get("elevenlabs_api_key"):
+                    Config.ELEVENLABS_API_KEY = settings["elevenlabs_api_key"]
+                    os.environ["ELEVENLABS_API_KEY"] = settings["elevenlabs_api_key"]
+                if settings.get("cartesia_api_key"):
+                    Config.CARTESIA_API_KEY = settings["cartesia_api_key"]
+                    os.environ["CARTESIA_API_KEY"] = settings["cartesia_api_key"]
+
+                return True
+            except Exception as e:
+                print(f"Error loading config file: {e}")
+                return False
+        return False
+
+    @staticmethod
     def validate_config():
         """
         Validate the configuration to ensure all necessary environment variables are set.
