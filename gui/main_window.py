@@ -14,6 +14,7 @@ from gui.chat_area import ChatArea
 from gui.animations import StatusIndicator
 from gui.backend_controller import BackendController
 from gui.settings_window import SettingsWindow
+from gui.dialogs import ErrorDialog, ConfirmationDialog, AboutDialog
 
 # Set appearance mode and default color theme
 ctk.set_appearance_mode("System")  # Modes: "System" (default), "Dark", "Light"
@@ -461,87 +462,11 @@ class VerbiMainWindow(ctk.CTk):
     def _show_error_dialog(self, error_message: str):
         """Show error dialog to user."""
         logger.error(f"Showing error dialog: {error_message}")
-
-        # Create error dialog
-        dialog = ctk.CTkToplevel(self)
-        dialog.title("Error")
-        dialog.geometry("400x200")
-        dialog.transient(self)
-        dialog.grab_set()
-
-        # Center dialog
-        dialog.update_idletasks()
-        x = self.winfo_x() + (self.winfo_width() // 2) - (dialog.winfo_width() // 2)
-        y = self.winfo_y() + (self.winfo_height() // 2) - (dialog.winfo_height() // 2)
-        dialog.geometry(f"+{x}+{y}")
-
-        # Error message
-        error_label = ctk.CTkLabel(
-            dialog,
-            text=f"⚠️ Error\n\n{error_message}",
-            font=ctk.CTkFont(size=14),
-            wraplength=350
-        )
-        error_label.pack(pady=20, padx=20)
-
-        # OK button
-        ok_btn = ctk.CTkButton(
-            dialog,
-            text="OK",
-            command=dialog.destroy,
-            width=100
-        )
-        ok_btn.pack(pady=10)
+        ErrorDialog(self, error_message)
 
     def _show_confirmation_dialog(self, title: str, message: str, on_confirm):
         """Show confirmation dialog with Yes/No buttons."""
-        # Create confirmation dialog
-        dialog = ctk.CTkToplevel(self)
-        dialog.title(title)
-        dialog.geometry("400x200")
-        dialog.transient(self)
-        dialog.grab_set()
-
-        # Center dialog
-        dialog.update_idletasks()
-        x = self.winfo_x() + (self.winfo_width() // 2) - 200
-        y = self.winfo_y() + (self.winfo_height() // 2) - 100
-        dialog.geometry(f"+{x}+{y}")
-
-        # Message
-        message_label = ctk.CTkLabel(
-            dialog,
-            text=message,
-            font=ctk.CTkFont(size=14),
-            wraplength=350
-        )
-        message_label.pack(pady=30, padx=20)
-
-        # Button frame
-        button_frame = ctk.CTkFrame(dialog, fg_color="transparent")
-        button_frame.pack(pady=10)
-
-        # Yes button
-        yes_btn = ctk.CTkButton(
-            button_frame,
-            text="Yes",
-            command=lambda: [dialog.destroy(), on_confirm()],
-            width=100,
-            fg_color="red",
-            hover_color="darkred"
-        )
-        yes_btn.pack(side="left", padx=10)
-
-        # No button
-        no_btn = ctk.CTkButton(
-            button_frame,
-            text="No",
-            command=dialog.destroy,
-            width=100,
-            fg_color="gray",
-            hover_color="darkgray"
-        )
-        no_btn.pack(side="left", padx=10)
+        ConfirmationDialog(self, message, on_confirm, title)
 
     def save_conversation(self):
         """Save conversation history to JSON file."""
@@ -662,62 +587,7 @@ class VerbiMainWindow(ctk.CTk):
 
     def show_about_dialog(self):
         """Show About dialog with version info."""
-        dialog = ctk.CTkToplevel(self)
-        dialog.title("About Verbi")
-        dialog.geometry("400x350")
-        dialog.transient(self)
-        dialog.grab_set()
-
-        # Center dialog
-        dialog.update_idletasks()
-        x = self.winfo_x() + (self.winfo_width() // 2) - 200
-        y = self.winfo_y() + (self.winfo_height() // 2) - 175
-        dialog.geometry(f"+{x}+{y}")
-
-        # Title
-        title_label = ctk.CTkLabel(
-            dialog,
-            text="Verbi",
-            font=ctk.CTkFont(size=32, weight="bold")
-        )
-        title_label.pack(pady=(30, 5))
-
-        # Version
-        version_label = ctk.CTkLabel(
-            dialog,
-            text="Version 1.0.0",
-            font=ctk.CTkFont(size=14),
-            text_color="gray"
-        )
-        version_label.pack(pady=5)
-
-        # Description
-        desc_label = ctk.CTkLabel(
-            dialog,
-            text="AI-Powered Voice Assistant\n\nBuilt with CustomTkinter\nSupports multiple AI providers",
-            font=ctk.CTkFont(size=12),
-            justify="center"
-        )
-        desc_label.pack(pady=20)
-
-        # Credits
-        credits_label = ctk.CTkLabel(
-            dialog,
-            text="© 2025 Verbi\nAll rights reserved",
-            font=ctk.CTkFont(size=10),
-            text_color="gray",
-            justify="center"
-        )
-        credits_label.pack(pady=10)
-
-        # Close button
-        close_btn = ctk.CTkButton(
-            dialog,
-            text="Close",
-            command=dialog.destroy,
-            width=100
-        )
-        close_btn.pack(pady=20)
+        AboutDialog(self, version="1.0.0")
 
     def open_documentation(self):
         """Open documentation in web browser."""
