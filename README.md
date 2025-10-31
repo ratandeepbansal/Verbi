@@ -1,13 +1,30 @@
-# VERBI - Voice Assistant 🎙️
+# VERBI STUDIO - AI Voice Assistant with Modern GUI 🎙️✨
+
+> **A desktop GUI application built on top of the amazing [Verbi](https://github.com/PromtEngineer/Verbi) project by PromtEngineer**
+
+Verbi Studio is a feature-rich desktop application that brings a beautiful, modern graphical interface to the powerful Verbi voice assistant. Built with CustomTkinter, it offers an intuitive way to interact with multiple AI providers through voice, with real-time animations, visual feedback, and comprehensive settings management.
+
+## What's New in Verbi Studio 🆕
+
+- 🖥️ **Modern Desktop UI**: Clean, dark-themed interface with smooth animations
+- 🎨 **Visual Status Indicators**: Animated pulsing, spinning, and wave effects
+- ⚙️ **Comprehensive Settings Panel**: Easy API configuration with visual status testing
+- 💾 **Conversation Management**: Save, load, and export your conversations
+- ⌨️ **Keyboard Shortcuts**: Quick access to all features
+- 📦 **Standalone macOS App**: Build as a native .app bundle
+- 🎯 **Multiple AI Providers**: Switch between OpenAI, Groq, Deepgram, ElevenLabs, and Cartesia
+
+## Credits & Original Project 🙏
+
+This project is built upon the excellent foundation of **[Verbi](https://github.com/PromtEngineer/Verbi)** created by [PromtEngineer](https://github.com/PromtEngineer). Verbi Studio extends the original CLI-based voice assistant with a complete GUI implementation while maintaining all the modular design and API flexibility that makes Verbi great.
+
+**Original Verbi Project:**
+- Repository: https://github.com/PromtEngineer/Verbi
+- Creator: [@PromtEngineer](https://github.com/PromtEngineer)
+
 <p align="center">
 <a href="https://trendshift.io/repositories/11584" target="_blank"><img src="https://trendshift.io/api/badge/repositories/11584" alt="PromtEngineer%2FVerbi | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
 </p>
-
-[![GitHub Stars](https://img.shields.io/github/stars/PromtEngineer/Verbi?style=social)](https://github.com/PromtEngineer/Verbi/stargazers)
-[![GitHub Forks](https://img.shields.io/github/forks/PromtEngineer/Verbi?style=social)](https://github.com/PromtEngineer/Verbi/network/members)
-[![GitHub Issues](https://img.shields.io/github/issues/PromtEngineer/Verbi)](https://github.com/PromtEngineer/Verbi/issues)
-[![GitHub Pull Requests](https://img.shields.io/github/issues-pr/PromtEngineer/Verbi)](https://github.com/PromtEngineer/Verbi/pulls)
-[![License](https://img.shields.io/github/license/PromtEngineer/Verbi)](https://github.com/PromtEngineer/Verbi/blob/main/LICENSE)
 
 ## Motivation ✨✨✨
 
@@ -208,7 +225,91 @@ If you are running LLM locally via [Ollama](https://ollama.com/), make sure the 
    ```shell
       TTS_MODEL = 'piper'        # Options: 'openai', 'deepgram', 'elevenlabs', 'local', 'melotts','piper'
    ```
-   You can run the main file to start using verbi with local models. 
+   You can run the main file to start using verbi with local models.
+
+## GUI Application - Verbi Studio 🖥️
+
+### Running the GUI
+
+To run the Verbi Studio GUI version:
+
+```shell
+python run_gui.py
+```
+
+### GUI Features
+
+- **Modern Interface**: Clean, dark-themed UI with smooth animations and visual feedback
+- **Visual Status Indicators**:
+  - 🎧 Pulsing indicator when listening
+  - 🔄 Spinning indicator when thinking
+  - 🌊 Wave indicator when speaking
+- **Settings Panel**: Easy configuration of API keys and model selection for all providers
+- **API Status Testing**: Test all configured APIs with one click to verify connectivity
+- **Conversation Management**:
+  - Save conversations in JSON format
+  - Load previous conversations
+  - Export as text or markdown
+- **Keyboard Shortcuts**:
+  - `Space` - Push to talk
+  - `Cmd/Ctrl + K` - Clear conversation
+  - `Cmd/Ctrl + ,` - Open settings
+  - `Escape` - Stop current action
+
+### Building macOS App Bundle
+
+Build Verbi Studio as a standalone macOS application:
+
+1. **Ensure all dependencies are installed**:
+```shell
+pip install -r requirements.txt
+```
+
+2. **Build the app bundle**:
+```shell
+pyinstaller verbi.spec --clean --noconfirm
+```
+
+3. **Find your app**:
+The `Verbi.app` will be created in the `dist/` directory. You can:
+- Double-click `Verbi.app` to run it
+- Drag it to your Applications folder
+- Run from terminal: `./dist/Verbi.app/Contents/MacOS/Verbi`
+
+**Note**: The app bundle is ~133MB and includes all dependencies. No Python installation required to run the bundled app.
+
+### Custom App Icon
+
+To add a custom icon to Verbi Studio:
+
+1. Create or obtain a `.icns` file (macOS app icon format)
+2. Place it in the `assets/` directory as `icon.icns`
+3. Rebuild with PyInstaller
+
+See `assets/ICON_README.md` for detailed instructions on creating `.icns` files.
+
+### System Requirements
+
+- **macOS**: 10.13 (High Sierra) or higher
+- **Python**: 3.10 or higher (for development; not required for bundled app)
+- **Microphone**: Required for voice input
+- **Internet**: Required for API-based models
+
+### Troubleshooting
+
+**App won't launch:**
+- Grant microphone permission: System Preferences > Security & Privacy > Privacy > Microphone
+- Ensure API keys are configured in Settings panel or `.env` file
+
+**API errors:**
+- Verify API keys in Settings > API Keys section
+- Use "Test All APIs" button to check connectivity
+- Check internet connection
+
+**Audio issues:**
+- Verify microphone permission is granted
+- Check System Preferences > Sound > Input
+- Ensure microphone is not being used by another application
 
 ## Model Options ⚙️
 

@@ -39,3 +39,8 @@ customtkinter
 pyinstaller
 pyobjc-framework-AVFoundation
 pyobjc-framework-Cocoa
+jaraco.text
+jaraco.functools
+jaraco.context
+more-itertools
+platformdirs
