@@ -1,6 +1,7 @@
 # voice_assistant/text_to_speech.py
 import logging
 import json
+import os
 import pyaudio
 import elevenlabs
 import soundfile as sf
@@ -17,6 +18,9 @@ from cartesia import Cartesia
 
 from voice_assistant.config import Config
 from voice_assistant.local_tts_generation import generate_audio_file_melotts
+
+# Global cache for pyttsx3 engine
+_pyttsx3_engine = None
 
 def text_to_speech(model: str, api_key:str, text:str, output_file_path:str, local_model_path:str=None):
     """
@@ -116,7 +120,7 @@ def text_to_speech(model: str, api_key:str, text:str, output_file_path:str, loca
                     json={"text": text},
                     headers={"Content-Type": "application/json"}
                 )
-                
+
                 if response.status_code == 200:
                     with open(Config.PIPER_OUTPUT_FILE, "wb") as f:
                         f.write(response.content)
@@ -126,13 +130,71 @@ def text_to_speech(model: str, api_key:str, text:str, output_file_path:str, loca
 
             except Exception as e:
                 logging.error(f"Piper TTS request failed: {e}")
-        
+
+        elif model == "pyttsx3":  # this is a local model using macOS built-in TTS
+            _tts_with_pyttsx3(text, output_file_path)
+
         elif model == 'local':
             with open(output_file_path, "wb") as f:
                 f.write(b"Local TTS audio data")
-        
+
         else:
             raise ValueError("Unsupported TTS model")
-        
+
     except Exception as e:
         logging.error(f"Failed to convert text to speech: {e}")
+
+
+def _tts_with_pyttsx3(text, output_file_path):
+    """
+    Generate speech using pyttsx3 (macOS built-in TTS).
+
+    Uses macOS 'say' command directly via subprocess for reliability.
+    More stable than pyttsx3 which can hang on macOS.
+
+    Args:
+        text (str): Text to synthesize
+        output_file_path (str): Output audio file path
+
+    Note:
+        Uses macOS 'say' command for completely local, zero-cost TTS.
+        Quality is decent, completely free, and works offline.
+    """
+    try:
+        import subprocess
+
+        logging.info(f"Generating speech with macOS 'say' command")
+
+        # Use macOS 'say' command directly (more reliable than pyttsx3)
+        # -o specifies output file
+        # -r specifies rate (default is 175 words per minute)
+        # --data-format creates WAV format that pygame can play
+        command = [
+            'say',
+            '-o', output_file_path,
+            '-r', '175',  # Speaking rate
+            '--data-format=LEI16@22050',  # 16-bit little-endian PCM at 22050 Hz
+            text
+        ]
+
+        result = subprocess.run(
+            command,
+            capture_output=True,
+            text=True,
+            timeout=30  # 30 second timeout
+        )
+
+        if result.returncode != 0:
+            raise Exception(f"say command failed: {result.stderr}")
+
+        if not os.path.exists(output_file_path):
+            raise Exception(f"Output file not created: {output_file_path}")
+
+        logging.info(f"pyttsx3 TTS generated audio: {output_file_path}")
+
+    except subprocess.TimeoutExpired:
+        logging.error("pyttsx3 TTS timeout after 30 seconds")
+        raise Exception("TTS generation timed out")
+    except Exception as e:
+        logging.error(f"pyttsx3 TTS error: {e}")
+        raise

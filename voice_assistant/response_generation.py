@@ -78,38 +78,27 @@ def _generate_lmstudio_response(chat_history):
         str: The generated response text.
     """
     try:
-        # Get system message and separate it from chat history
-        system_message = None
-        user_assistant_messages = []
+        from openai import OpenAI
+        from voice_assistant.config import Config
 
-        for message in chat_history:
-            if message.get('role') == 'system':
-                system_message = message.get('content')
-            else:
-                user_assistant_messages.append(message)
+        # Use OpenAI-compatible API which properly handles message history
+        client = OpenAI(
+            base_url=Config.LMSTUDIO_BASE_URL + "/v1",
+            api_key="lm-studio"  # LM Studio doesn't require a real API key
+        )
 
-        # Initialize Chat with system message if present
-        if system_message:
-            chat = lms.Chat(system_message)
-        else:
-            chat = lms.Chat()
+        # Make completion request with full chat history
+        completion = client.chat.completions.create(
+            model="local-model",  # LM Studio uses whatever model is loaded
+            messages=chat_history,
+            temperature=0.7,
+            max_tokens=500
+        )
 
-        # Add conversation history
-        for message in user_assistant_messages:
-            role = message.get('role')
-            content = message.get('content')
+        response_text = completion.choices[0].message.content
+        logging.info(f"Response: {response_text}")
 
-            if role == 'user':
-                chat.add_user_message(content)
-            elif role == 'assistant':
-                chat.add_assistant_message(content)
-
-        # Get model and generate response (uses currently loaded model in LM Studio)
-        model = lms.llm()
-        response = model.respond(chat)
-
-        # Convert PredictionResult to string
-        return str(response)
+        return response_text
 
     except Exception as e:
         logging.error(f"LM Studio generation error: {e}")

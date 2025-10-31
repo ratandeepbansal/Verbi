@@ -158,7 +158,7 @@ class SettingsWindow(ctk.CTkToplevel):
         self.tts_menu = ctk.CTkOptionMenu(
             tts_frame,
             variable=self.tts_var,
-            values=["openai", "deepgram", "elevenlabs", "melotts", "cartesia", "piper", "local"],
+            values=["openai", "deepgram", "elevenlabs", "melotts", "cartesia", "piper", "pyttsx3", "local"],
             width=200
         )
         self.tts_menu.pack(side="right", padx=10, pady=10)
