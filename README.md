@@ -267,6 +267,17 @@ Potential improvements and features being considered for VoiceBox:
   - Multi-user support with authentication
   - Shareable conversation links
 
+### Local Models Integration ⚡
+- **LM Studio SDK Integration**
+  - Use local models via LM Studio for ultra-low latency
+  - Local transcription (Whisper models)
+  - Local LLM inference (Llama, Mistral, etc.)
+  - Local text-to-speech (Piper, Coqui TTS)
+  - Eliminate API costs and dependencies
+  - Privacy-focused - all processing on-device
+  - Offline capability
+  - Fine-tuned models for specific use cases
+
 ### Additional Features Under Consideration
 - Real-time voice activity detection (VAD) for automatic recording
 - Multi-language support
