@@ -244,6 +244,40 @@ source venv/bin/activate
 python run_voice_assistant.py
 ```
 
+## Roadmap & Future Enhancements 🚀
+
+Potential improvements and features being considered for VoiceBox:
+
+### UI/UX Enhancements
+- **Neon Theme** 🌈
+  - Dark theme with vibrant neon colors (cyberpunk aesthetic)
+  - More dynamic and responsive animations
+  - Glassmorphism effects
+  - Smooth transitions between states
+  - Customizable color schemes
+  - Particle effects during voice interaction
+
+### Web Application Version 🌐
+- **Browser-Based VoiceBox**
+  - Port to web using Streamlit, Flask, or FastAPI + React
+  - Access from any device with a browser
+  - Real-time WebSocket communication for voice streaming
+  - Responsive design for mobile and tablet
+  - Cloud deployment options (Vercel, Railway, Render)
+  - Multi-user support with authentication
+  - Shareable conversation links
+
+### Additional Features Under Consideration
+- Real-time voice activity detection (VAD) for automatic recording
+- Multi-language support
+- Voice profile customization
+- Conversation analytics and insights
+- Plugin/extension system
+- Windows and Linux GUI versions
+- iOS/Android mobile apps
+
+**Want to contribute?** These are great starting points for PRs!
+
 ## Contributing 🤝
 
 This is a fork focused on macOS GUI implementation. For contributions:
