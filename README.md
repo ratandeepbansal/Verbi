@@ -1,16 +1,20 @@
-# VoiceBox 🎙️
+# VoxVibe 🎙️✨
 
 **A Native macOS Desktop App for AI Voice Conversations**
+*Vibe-coded with Claude AI*
 
 > Built on top of the excellent [Verbi](https://github.com/PromtEngineer/Verbi) voice assistant by [@PromtEngineer](https://github.com/PromtEngineer)
 
 ![macOS](https://img.shields.io/badge/macOS-10.13+-blue)
 ![Python](https://img.shields.io/badge/python-3.10+-green)
+![AI-Coded](https://img.shields.io/badge/AI--Coded-Claude-purple)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
 ## About This Project 📖
 
-**VoiceBox** is a macOS GUI fork of Verbi that transforms the powerful CLI voice assistant into a beautiful, native desktop application. While Verbi provides the excellent backend foundation with its modular AI provider architecture, VoiceBox adds:
+**VoxVibe** is a macOS GUI fork of Verbi that transforms the powerful CLI voice assistant into a beautiful, native desktop application. This entire GUI implementation was vibe-coded with Claude AI, bringing modern design and user experience to voice-based AI interactions.
+
+While Verbi provides the excellent backend foundation with its modular AI provider architecture, VoxVibe adds:
 
 - 🖥️ **Native macOS Application** - Built with CustomTkinter for a modern, polished interface
 - 🎨 **Visual Feedback** - Animated status indicators (pulsing, spinning, wave effects)
@@ -34,9 +38,9 @@ This project would not exist without the amazing work of **[@PromtEngineer](http
 
 **All credit for the core voice assistant functionality, modular architecture, and AI provider integrations goes to the original Verbi project.**
 
-## What VoiceBox Adds 🆕
+## What VoxVibe Adds 🆕
 
-This fork focuses specifically on creating a native macOS desktop experience:
+This fork focuses specifically on creating a native macOS desktop experience, entirely vibe-coded with AI:
 
 ### GUI Implementation (Phases 1-3)
 - **Phase 1**: Basic GUI foundation with CustomTkinter
@@ -85,8 +89,8 @@ This fork focuses specifically on creating a native macOS desktop experience:
 
 1. **Clone this repository**:
 ```bash
-git clone https://github.com/ratandeepbansal/Verbi.git
-cd Verbi
+git clone https://github.com/ratandeepbansal/VoxVibe.git
+cd VoxVibe
 ```
 
 2. **Set up virtual environment**:
@@ -110,14 +114,14 @@ ELEVENLABS_API_KEY=your_key_here
 CARTESIA_API_KEY=your_key_here
 ```
 
-5. **Run VoiceBox**:
+5. **Run VoxVibe**:
 ```bash
 python run_gui.py
 ```
 
 ## Building macOS App 📦
 
-Build VoiceBox as a standalone macOS application:
+Build VoxVibe as a standalone macOS application:
 
 ```bash
 # Ensure dependencies are installed
@@ -155,7 +159,7 @@ See `assets/ICON_README.md` for creating `.icns` files.
 - **LLM Response**: OpenAI GPT-4, Groq LLaMA, or local models via Ollama
 - **Text-to-Speech**: Natural voices from OpenAI, Deepgram, ElevenLabs, Cartesia
 
-### GUI Features (VoiceBox)
+### GUI Features (VoxVibe)
 - **Visual Status**:
   - 🎧 Pulsing blue when listening
   - 🔄 Spinning purple when thinking
@@ -180,8 +184,8 @@ See `assets/ICON_README.md` for creating `.icns` files.
 ## Project Structure 📂
 
 ```
-VoiceBox/
-├── gui/                          # GUI implementation (VoiceBox)
+VoxVibe/
+├── gui/                          # GUI implementation (VoxVibe)
 │   ├── main_window.py           # Main application window
 │   ├── settings_window.py       # Settings panel
 │   ├── chat_area.py             # Chat display
@@ -246,7 +250,7 @@ python run_voice_assistant.py
 
 ## Roadmap & Future Enhancements 🚀
 
-Potential improvements and features being considered for VoiceBox:
+Potential improvements and features being considered for VoxVibe:
 
 ### UI/UX Enhancements
 - **Neon Theme** 🌈
@@ -258,7 +262,7 @@ Potential improvements and features being considered for VoiceBox:
   - Particle effects during voice interaction
 
 ### Web Application Version 🌐
-- **Browser-Based VoiceBox**
+- **Browser-Based VoxVibe**
   - Port to web using Streamlit, Flask, or FastAPI + React
   - Access from any device with a browser
   - Real-time WebSocket communication for voice streaming
@@ -309,4 +313,4 @@ This project maintains the same license as the original Verbi project.
 
 ---
 
-**VoiceBox** = [Verbi](https://github.com/PromtEngineer/Verbi)'s voice assistant + macOS native GUI ❤️
+**VoxVibe** = [Verbi](https://github.com/PromtEngineer/Verbi)'s voice assistant + macOS native GUI ❤️
