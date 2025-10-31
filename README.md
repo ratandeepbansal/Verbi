@@ -10,6 +10,12 @@
 ![AI-Coded](https://img.shields.io/badge/AI--Coded-Claude-purple)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
+<p align="center">
+  <img src="assets/images/screenshot.jpg" alt="VoxVibe Neon Theme" width="800">
+  <br>
+  <em>VoxVibe with the new cyberpunk neon theme</em>
+</p>
+
 ## About This Project 📖
 
 **VoxVibe** is a macOS GUI fork of Verbi that transforms the powerful CLI voice assistant into a beautiful, native desktop application. This entire GUI implementation was vibe-coded with Claude AI, bringing modern design and user experience to voice-based AI interactions.
@@ -77,6 +83,24 @@ This fork focuses specifically on creating a native macOS desktop experience, en
   - ~133MB bundle with all dependencies included
   - Info.plist with proper permissions and metadata
   - No Python installation required to run
+
+### Neon Theme (Latest Update) ✨
+- **Cyberpunk Aesthetic**: Complete UI redesign with neon colors
+  - Pure black (#000000) background for maximum contrast
+  - Neon green (#00FF41) as primary color (Matrix-style)
+  - Secondary neon colors: Cyan, Purple, Pink for accents
+- **Enhanced Animations**: Smooth 30fps animations with elegant easing
+  - Pulsing indicator (listening): Neon green with sine wave motion
+  - Spinner indicator (thinking): Neon purple with optimized timing
+  - Wave indicator (speaking): Neon cyan with fluid motion
+- **Consistent Styling**: Professional design across all windows
+  - Message bubbles with neon accent borders
+  - Settings panel with themed buttons and status indicators
+  - Dialog boxes with cohesive neon styling
+- **Visual Hierarchy**: Thoughtful use of color for better UX
+  - Success states: Neon green
+  - Error states: Neon pink
+  - Processing states: Neon purple
 
 ## Quick Start 🚀
 
@@ -160,15 +184,15 @@ See `assets/ICON_README.md` for creating `.icns` files.
 - **Text-to-Speech**: Natural voices from OpenAI, Deepgram, ElevenLabs, Cartesia
 
 ### GUI Features (VoxVibe)
-- **Visual Status**:
-  - 🎧 Pulsing blue when listening
-  - 🔄 Spinning purple when thinking
-  - 🌊 Waving green when speaking
+- **Visual Status** (Neon Theme):
+  - 🎧 Pulsing neon green when listening
+  - 🔄 Spinning neon purple when thinking
+  - 🌊 Waving neon cyan when speaking
 
 - **Settings Panel**:
-  - API key configuration
+  - API key configuration with neon styling
   - Model selection per provider
-  - One-click API testing
+  - One-click API testing with color-coded results
 
 - **Conversation Management**:
   - Save as JSON for later loading
@@ -190,6 +214,7 @@ VoxVibe/
 │   ├── settings_window.py       # Settings panel
 │   ├── chat_area.py             # Chat display
 │   ├── animations.py            # Status indicators
+│   ├── theme.py                 # Neon theme configuration
 │   ├── dialogs.py               # Reusable dialogs
 │   └── backend_controller.py    # GUI-backend bridge
 ├── voice_assistant/              # Core voice functionality (from Verbi)
@@ -250,16 +275,18 @@ python run_voice_assistant.py
 
 ## Roadmap & Future Enhancements 🚀
 
-Potential improvements and features being considered for VoxVibe:
+### ✅ Completed Enhancements
+- **Neon Theme** 🌈 (Latest Update)
+  - ✅ Dark theme with vibrant neon colors (cyberpunk aesthetic)
+  - ✅ Dynamic and responsive animations at 30fps
+  - ✅ Smooth transitions between states with elegant easing
+  - ✅ Consistent color scheme across all windows
+  - ⏳ Glassmorphism effects (Future)
+  - ⏳ Customizable color schemes (Future)
+  - ⏳ Particle effects during voice interaction (Future)
 
-### UI/UX Enhancements
-- **Neon Theme** 🌈
-  - Dark theme with vibrant neon colors (cyberpunk aesthetic)
-  - More dynamic and responsive animations
-  - Glassmorphism effects
-  - Smooth transitions between states
-  - Customizable color schemes
-  - Particle effects during voice interaction
+### Potential Future Improvements
+Features being considered for VoxVibe:
 
 ### Web Application Version 🌐
 - **Browser-Based VoxVibe**
