@@ -3,6 +3,7 @@
 import customtkinter as ctk
 from datetime import datetime
 from typing import Literal
+from gui.theme import NeonTheme, LayoutConfig
 
 
 class MessageBubble(ctk.CTkFrame):
@@ -33,17 +34,24 @@ class MessageBubble(ctk.CTkFrame):
         self.sender = sender
         self.timestamp = timestamp or datetime.now().strftime("%I:%M %p")
 
-        # Configure colors based on sender
+        # Configure colors based on sender with neon theme
         if sender == "user":
-            self.fg_color = ["#3B8ED0", "#1F6AA5"]  # Blue for user
-            self.text_color = "white"
+            self.fg_color = NeonTheme.USER_BUBBLE  # Dark green for user
+            self.border_color = NeonTheme.USER_BORDER  # Neon green border
+            self.text_color = NeonTheme.TEXT_PRIMARY
             self.anchor = "e"  # Align to right
         else:  # assistant
-            self.fg_color = ["gray75", "gray30"]  # Gray for assistant
-            self.text_color = ["gray10", "white"]
+            self.fg_color = NeonTheme.ASSISTANT_BUBBLE  # Very dark gray
+            self.border_color = NeonTheme.ASSISTANT_BORDER  # Cyan border
+            self.text_color = NeonTheme.TEXT_PRIMARY
             self.anchor = "w"  # Align to left
 
-        self.configure(fg_color=self.fg_color, corner_radius=15)
+        self.configure(
+            fg_color=self.fg_color,
+            border_color=self.border_color,
+            border_width=1,
+            corner_radius=LayoutConfig.RADIUS_LG
+        )
         self.grid_columnconfigure(0, weight=1)
 
         self._create_widgets()
@@ -62,12 +70,12 @@ class MessageBubble(ctk.CTkFrame):
         )
         message_label.grid(row=0, column=0, sticky="w", padx=15, pady=(12, 5))
 
-        # Timestamp
+        # Timestamp with themed color
         timestamp_label = ctk.CTkLabel(
             self,
             text=self.timestamp,
             font=ctk.CTkFont(size=10),
-            text_color=self.text_color if self.sender == "user" else "gray50",
+            text_color=NeonTheme.TEXT_MUTED,
         )
         timestamp_label.grid(row=1, column=0, sticky="e", padx=15, pady=(0, 8))
 

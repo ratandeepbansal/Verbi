@@ -3,6 +3,7 @@
 import customtkinter as ctk
 import math
 from typing import Literal
+from gui.theme import NeonTheme, AnimationConfig
 
 
 class PulsingIndicator(ctk.CTkFrame):
@@ -25,22 +26,23 @@ class PulsingIndicator(ctk.CTkFrame):
         self.animation_step = 0
         self.configure(fg_color="transparent")
 
-        # Create canvas for custom drawing
+        # Create canvas for custom drawing with black background
         self.canvas = ctk.CTkCanvas(
             self,
             width=size,
             height=size,
-            bg=self._apply_appearance_mode(ctk.ThemeManager.theme["CTkFrame"]["fg_color"]),
+            bg=NeonTheme.BG_BLACK,
             highlightthickness=0
         )
         self.canvas.pack()
 
-        # Create pulsing circle
+        # Create pulsing circle with neon green
         self.circle = self.canvas.create_oval(
             size // 4, size // 4,
             3 * size // 4, 3 * size // 4,
-            fill="#3B8ED0",
-            outline=""
+            fill=NeonTheme.STATUS_LISTENING,
+            outline=NeonTheme.PRIMARY,
+            width=2
         )
 
     def start(self):
@@ -53,13 +55,14 @@ class PulsingIndicator(ctk.CTkFrame):
         self.is_animating = False
 
     def _animate(self):
-        """Perform one frame of the pulsing animation."""
+        """Perform one frame of the pulsing animation with smooth easing."""
         if not self.is_animating:
             return
 
-        # Calculate pulse scale
-        self.animation_step = (self.animation_step + 1) % 60
-        scale = 0.5 + 0.3 * math.sin(self.animation_step * math.pi / 30)
+        # Calculate smooth pulse scale with easing
+        self.animation_step = (self.animation_step + 1) % 100
+        # Use smoother sine wave for more elegant pulsing
+        scale = 0.6 + 0.25 * math.sin(self.animation_step * 2 * math.pi / 100)
 
         # Update circle size
         center = self.size // 2
@@ -71,8 +74,8 @@ class PulsingIndicator(ctk.CTkFrame):
             center + radius, center + radius
         )
 
-        # Schedule next frame
-        self.after(50, self._animate)
+        # Schedule next frame with smoother timing (33ms ≈ 30fps)
+        self.after(33, self._animate)
 
 
 class SpinnerIndicator(ctk.CTkFrame):
@@ -95,12 +98,12 @@ class SpinnerIndicator(ctk.CTkFrame):
         self.angle = 0
         self.configure(fg_color="transparent")
 
-        # Create label with spinning character
+        # Create label with spinning character in neon purple
         self.label = ctk.CTkLabel(
             self,
             text="⟳",
             font=ctk.CTkFont(size=size),
-            text_color=["#3B8ED0", "#1F6AA5"]
+            text_color=NeonTheme.STATUS_THINKING
         )
         self.label.pack()
 
@@ -114,7 +117,7 @@ class SpinnerIndicator(ctk.CTkFrame):
         self.is_animating = False
 
     def _animate(self):
-        """Perform one frame of the spinning animation."""
+        """Perform one frame of the spinning animation with smooth timing."""
         if not self.is_animating:
             return
 
@@ -123,8 +126,8 @@ class SpinnerIndicator(ctk.CTkFrame):
         self.angle = (self.angle + 1) % len(spinners)
         self.label.configure(text=spinners[self.angle])
 
-        # Schedule next frame
-        self.after(100, self._animate)
+        # Schedule next frame with smoother timing (80ms for readable character cycling)
+        self.after(80, self._animate)
 
 
 class WaveIndicator(ctk.CTkFrame):
@@ -153,14 +156,16 @@ class WaveIndicator(ctk.CTkFrame):
         self.bars_frame = ctk.CTkFrame(self, fg_color="transparent")
         self.bars_frame.pack()
 
-        # Create 5 bars
+        # Create 5 bars with neon cyan theme
         self.bars = []
         for i in range(5):
             bar = ctk.CTkProgressBar(
                 self.bars_frame,
                 width=10,
                 height=height,
-                orientation="vertical"
+                orientation="vertical",
+                progress_color=NeonTheme.STATUS_SPEAKING,  # Neon cyan
+                fg_color=NeonTheme.BG_SURFACE  # Dark gray background
             )
             bar.grid(row=0, column=i, padx=3)
             bar.set(0.3)
@@ -179,20 +184,22 @@ class WaveIndicator(ctk.CTkFrame):
             bar.set(0.3)
 
     def _animate(self):
-        """Perform one frame of the wave animation."""
+        """Perform one frame of the wave animation with smooth, elegant motion."""
         if not self.is_animating:
             return
 
-        self.animation_step = (self.animation_step + 1) % 40
+        self.animation_step = (self.animation_step + 1) % 60
 
-        # Update each bar height with a wave pattern
+        # Update each bar height with a smooth wave pattern
         for i, bar in enumerate(self.bars):
-            offset = i * math.pi / 5
-            height = 0.3 + 0.5 * abs(math.sin(self.animation_step * math.pi / 20 + offset))
+            # Create phase offset for wave effect across bars
+            offset = i * math.pi / 4
+            # Smooth sine wave with elegant easing
+            height = 0.25 + 0.6 * abs(math.sin(self.animation_step * math.pi / 30 + offset))
             bar.set(height)
 
-        # Schedule next frame
-        self.after(80, self._animate)
+        # Schedule next frame with smoother timing (50ms ≈ 20fps for fluid wave motion)
+        self.after(50, self._animate)
 
 
 class StatusIndicator(ctk.CTkFrame):

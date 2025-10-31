@@ -6,6 +6,7 @@ import json
 import threading
 from typing import Callable, Optional
 import logging
+from gui.theme import NeonTheme, LayoutConfig
 
 logger = logging.getLogger(__name__)
 
@@ -26,10 +27,11 @@ class SettingsWindow(ctk.CTkToplevel):
         self.on_settings_saved = on_settings_saved
         self.config_file = ".verbi_config.json"
 
-        # Window configuration
-        self.title("Verbi Settings")
+        # Window configuration with neon theme
+        self.title("VoxVibe Settings")
         self.geometry("700x900")
         self.resizable(False, False)
+        self.configure(fg_color=NeonTheme.BG_BLACK)
 
         # Make window modal
         self.transient(parent)
@@ -51,11 +53,12 @@ class SettingsWindow(ctk.CTkToplevel):
         self.main_container = ctk.CTkScrollableFrame(self, fg_color="transparent")
         self.main_container.pack(fill="both", expand=True, padx=20, pady=20)
 
-        # Title
+        # Title with neon green
         title = ctk.CTkLabel(
             self.main_container,
             text="Settings",
-            font=ctk.CTkFont(size=24, weight="bold")
+            font=ctk.CTkFont(size=24, weight="bold"),
+            text_color=NeonTheme.PRIMARY
         )
         title.pack(pady=(0, 20))
 
@@ -76,16 +79,22 @@ class SettingsWindow(ctk.CTkToplevel):
 
     def _create_model_section(self):
         """Create model selection section."""
-        # Section header
+        # Section header with neon green
         header = ctk.CTkLabel(
             self.main_container,
             text="Model Selection",
-            font=ctk.CTkFont(size=18, weight="bold")
+            font=ctk.CTkFont(size=18, weight="bold"),
+            text_color=NeonTheme.PRIMARY
         )
         header.pack(anchor="w", pady=(10, 10))
 
         # Transcription Model
-        transcription_frame = ctk.CTkFrame(self.main_container)
+        transcription_frame = ctk.CTkFrame(
+            self.main_container,
+            fg_color=NeonTheme.BG_ELEVATED,
+            border_color=NeonTheme.BORDER_DEFAULT,
+            border_width=1
+        )
         transcription_frame.pack(fill="x", pady=5)
 
         ctk.CTkLabel(
@@ -104,7 +113,12 @@ class SettingsWindow(ctk.CTkToplevel):
         self.transcription_menu.pack(side="right", padx=10, pady=10)
 
         # Response Model
-        response_frame = ctk.CTkFrame(self.main_container)
+        response_frame = ctk.CTkFrame(
+            self.main_container,
+            fg_color=NeonTheme.BG_ELEVATED,
+            border_color=NeonTheme.BORDER_DEFAULT,
+            border_width=1
+        )
         response_frame.pack(fill="x", pady=5)
 
         ctk.CTkLabel(
@@ -123,7 +137,12 @@ class SettingsWindow(ctk.CTkToplevel):
         self.response_menu.pack(side="right", padx=10, pady=10)
 
         # TTS Model
-        tts_frame = ctk.CTkFrame(self.main_container)
+        tts_frame = ctk.CTkFrame(
+            self.main_container,
+            fg_color=NeonTheme.BG_ELEVATED,
+            border_color=NeonTheme.BORDER_DEFAULT,
+            border_width=1
+        )
         tts_frame.pack(fill="x", pady=5)
 
         ctk.CTkLabel(
@@ -143,16 +162,22 @@ class SettingsWindow(ctk.CTkToplevel):
 
     def _create_llm_details_section(self):
         """Create LLM model details section."""
-        # Section header
+        # Section header with neon green
         header = ctk.CTkLabel(
             self.main_container,
             text="LLM Model Details",
-            font=ctk.CTkFont(size=18, weight="bold")
+            font=ctk.CTkFont(size=18, weight="bold"),
+            text_color=NeonTheme.PRIMARY
         )
         header.pack(anchor="w", pady=(20, 10))
 
         # OpenAI LLM
-        openai_llm_frame = ctk.CTkFrame(self.main_container)
+        openai_llm_frame = ctk.CTkFrame(
+            self.main_container,
+            fg_color=NeonTheme.BG_ELEVATED,
+            border_color=NeonTheme.BORDER_DEFAULT,
+            border_width=1
+        )
         openai_llm_frame.pack(fill="x", pady=5)
 
         ctk.CTkLabel(
@@ -170,7 +195,12 @@ class SettingsWindow(ctk.CTkToplevel):
         self.openai_llm_entry.pack(side="right", padx=10, pady=10)
 
         # Groq LLM
-        groq_llm_frame = ctk.CTkFrame(self.main_container)
+        groq_llm_frame = ctk.CTkFrame(
+            self.main_container,
+            fg_color=NeonTheme.BG_ELEVATED,
+            border_color=NeonTheme.BORDER_DEFAULT,
+            border_width=1
+        )
         groq_llm_frame.pack(fill="x", pady=5)
 
         ctk.CTkLabel(
@@ -188,7 +218,12 @@ class SettingsWindow(ctk.CTkToplevel):
         self.groq_llm_entry.pack(side="right", padx=10, pady=10)
 
         # Ollama LLM
-        ollama_llm_frame = ctk.CTkFrame(self.main_container)
+        ollama_llm_frame = ctk.CTkFrame(
+            self.main_container,
+            fg_color=NeonTheme.BG_ELEVATED,
+            border_color=NeonTheme.BORDER_DEFAULT,
+            border_width=1
+        )
         ollama_llm_frame.pack(fill="x", pady=5)
 
         ctk.CTkLabel(
@@ -207,20 +242,21 @@ class SettingsWindow(ctk.CTkToplevel):
 
     def _create_api_keys_section(self):
         """Create API keys section."""
-        # Section header
+        # Section header with neon green
         header = ctk.CTkLabel(
             self.main_container,
             text="API Keys",
-            font=ctk.CTkFont(size=18, weight="bold")
+            font=ctk.CTkFont(size=18, weight="bold"),
+            text_color=NeonTheme.PRIMARY
         )
         header.pack(anchor="w", pady=(20, 10))
 
-        # Info label
+        # Info label with muted color
         info = ctk.CTkLabel(
             self.main_container,
             text="Enter your API keys below. They will be saved securely.",
             font=ctk.CTkFont(size=12),
-            text_color="gray"
+            text_color=NeonTheme.TEXT_MUTED
         )
         info.pack(anchor="w", pady=(0, 10))
 
@@ -247,7 +283,12 @@ class SettingsWindow(ctk.CTkToplevel):
             label_text: Label for the field
             field_name: Internal field name
         """
-        frame = ctk.CTkFrame(self.main_container)
+        frame = ctk.CTkFrame(
+            self.main_container,
+            fg_color=NeonTheme.BG_ELEVATED,
+            border_color=NeonTheme.BORDER_DEFAULT,
+            border_width=1
+        )
         frame.pack(fill="x", pady=5)
 
         ctk.CTkLabel(
@@ -271,25 +312,31 @@ class SettingsWindow(ctk.CTkToplevel):
 
     def _create_api_status_section(self):
         """Create API status testing section."""
-        # Section header
+        # Section header with neon green
         header = ctk.CTkLabel(
             self.main_container,
             text="API Status",
-            font=ctk.CTkFont(size=18, weight="bold")
+            font=ctk.CTkFont(size=18, weight="bold"),
+            text_color=NeonTheme.PRIMARY
         )
         header.pack(anchor="w", pady=(20, 10))
 
-        # Info label
+        # Info label with muted color
         info = ctk.CTkLabel(
             self.main_container,
             text="Test your API connections to verify they are working correctly.",
             font=ctk.CTkFont(size=12),
-            text_color="gray"
+            text_color=NeonTheme.TEXT_MUTED
         )
         info.pack(anchor="w", pady=(0, 10))
 
-        # Status container
-        status_container = ctk.CTkFrame(self.main_container)
+        # Status container with neon theme
+        status_container = ctk.CTkFrame(
+            self.main_container,
+            fg_color=NeonTheme.BG_SURFACE,
+            border_color=NeonTheme.BORDER_DEFAULT,
+            border_width=1
+        )
         status_container.pack(fill="x", pady=10)
 
         # Dictionary to store status labels
@@ -300,7 +347,7 @@ class SettingsWindow(ctk.CTkToplevel):
         for provider in providers:
             self._create_api_status_row(status_container, provider)
 
-        # Test button
+        # Test button with neon purple theme
         test_button_frame = ctk.CTkFrame(self.main_container, fg_color="transparent")
         test_button_frame.pack(fill="x", pady=(10, 0))
 
@@ -311,17 +358,19 @@ class SettingsWindow(ctk.CTkToplevel):
             width=150,
             height=35,
             font=ctk.CTkFont(size=14, weight="bold"),
-            fg_color="purple",
-            hover_color="darkviolet"
+            fg_color=NeonTheme.SECONDARY_PURPLE,
+            hover_color="#7A00CC",  # Darker purple for hover
+            border_color=NeonTheme.SECONDARY_PURPLE,
+            border_width=1
         )
         self.test_apis_btn.pack(side="left")
 
-        # Status message
+        # Status message with muted color
         self.test_status_label = ctk.CTkLabel(
             test_button_frame,
             text="",
             font=ctk.CTkFont(size=12),
-            text_color="gray"
+            text_color=NeonTheme.TEXT_MUTED
         )
         self.test_status_label.pack(side="left", padx=20)
 
@@ -333,7 +382,12 @@ class SettingsWindow(ctk.CTkToplevel):
             parent: Parent widget
             provider_name: Name of the provider
         """
-        row = ctk.CTkFrame(parent)
+        row = ctk.CTkFrame(
+            parent,
+            fg_color=NeonTheme.BG_ELEVATED,
+            border_color=NeonTheme.BORDER_DEFAULT,
+            border_width=1
+        )
         row.pack(fill="x", pady=3, padx=10)
 
         # Provider name
@@ -351,7 +405,7 @@ class SettingsWindow(ctk.CTkToplevel):
             row,
             text="●",
             font=ctk.CTkFont(size=20),
-            text_color="gray",
+            text_color=NeonTheme.TEXT_MUTED,
             width=30
         )
         status_label.pack(side="left", padx=5)
@@ -361,7 +415,7 @@ class SettingsWindow(ctk.CTkToplevel):
             row,
             text="Not tested",
             font=ctk.CTkFont(size=12),
-            text_color="gray",
+            text_color=NeonTheme.TEXT_MUTED,
             anchor="w"
         )
         message_label.pack(side="left", padx=10)
@@ -376,12 +430,12 @@ class SettingsWindow(ctk.CTkToplevel):
         """Test all API providers in background thread."""
         # Disable button during testing
         self.test_apis_btn.configure(state="disabled", text="Testing...")
-        self.test_status_label.configure(text="Testing APIs...", text_color="orange")
+        self.test_status_label.configure(text="Testing APIs...", text_color=NeonTheme.SECONDARY_PURPLE)
 
-        # Reset all statuses
+        # Reset all statuses with neon purple (testing state)
         for provider in self.api_status_labels:
-            self.api_status_labels[provider]["icon"].configure(text="●", text_color="orange")
-            self.api_status_labels[provider]["message"].configure(text="Testing...", text_color="orange")
+            self.api_status_labels[provider]["icon"].configure(text="●", text_color=NeonTheme.SECONDARY_PURPLE)
+            self.api_status_labels[provider]["message"].configure(text="Testing...", text_color=NeonTheme.SECONDARY_PURPLE)
 
         # Run tests in background thread
         thread = threading.Thread(target=self._run_api_tests, daemon=True)
@@ -416,35 +470,41 @@ class SettingsWindow(ctk.CTkToplevel):
                 msg_label = self.api_status_labels[provider]["message"]
 
                 if success:
-                    icon_label.configure(text="✓", text_color="green")
-                    msg_label.configure(text=message, text_color="green")
+                    # Neon green for success
+                    icon_label.configure(text="✓", text_color=NeonTheme.PRIMARY)
+                    msg_label.configure(text=message, text_color=NeonTheme.PRIMARY)
                 else:
-                    icon_label.configure(text="✗", text_color="red")
-                    msg_label.configure(text=message, text_color="red")
+                    # Neon pink for errors
+                    icon_label.configure(text="✗", text_color=NeonTheme.SECONDARY_PINK)
+                    msg_label.configure(text=message, text_color=NeonTheme.SECONDARY_PINK)
 
         # Re-enable button
         self.test_apis_btn.configure(state="normal", text="Test All APIs")
-        self.test_status_label.configure(text="Testing complete", text_color="green")
+        self.test_status_label.configure(text="Testing complete", text_color=NeonTheme.PRIMARY)
 
         logger.info(f"API test results: {results}")
 
     def _create_buttons(self):
-        """Create action buttons."""
+        """Create action buttons with neon theme."""
         button_frame = ctk.CTkFrame(self.main_container, fg_color="transparent")
         button_frame.pack(fill="x", pady=(20, 0))
 
-        # Save button
+        # Save button - neon green (primary action)
         save_btn = ctk.CTkButton(
             button_frame,
             text="Save Settings",
             command=self._save_settings,
             width=150,
             height=40,
-            font=ctk.CTkFont(size=14, weight="bold")
+            font=ctk.CTkFont(size=14, weight="bold"),
+            fg_color=NeonTheme.BUTTON_PRIMARY,
+            hover_color=NeonTheme.BUTTON_PRIMARY_HOVER,
+            border_color=NeonTheme.PRIMARY,
+            border_width=1
         )
         save_btn.pack(side="left", padx=5)
 
-        # Cancel button
+        # Cancel button - gray/muted
         cancel_btn = ctk.CTkButton(
             button_frame,
             text="Cancel",
@@ -452,12 +512,14 @@ class SettingsWindow(ctk.CTkToplevel):
             width=150,
             height=40,
             font=ctk.CTkFont(size=14),
-            fg_color="gray",
-            hover_color="darkgray"
+            fg_color=NeonTheme.BUTTON_SECONDARY,
+            hover_color=NeonTheme.BUTTON_SECONDARY_HOVER,
+            border_color=NeonTheme.BORDER_DEFAULT,
+            border_width=1
         )
         cancel_btn.pack(side="left", padx=5)
 
-        # Reset to defaults button
+        # Reset to defaults button - neon pink (warning action)
         reset_btn = ctk.CTkButton(
             button_frame,
             text="Reset to Defaults",
@@ -465,8 +527,10 @@ class SettingsWindow(ctk.CTkToplevel):
             width=150,
             height=40,
             font=ctk.CTkFont(size=14),
-            fg_color="orange",
-            hover_color="darkorange"
+            fg_color=NeonTheme.BUTTON_DANGER,
+            hover_color=NeonTheme.BUTTON_DANGER_HOVER,
+            border_color=NeonTheme.SECONDARY_PINK,
+            border_width=1
         )
         reset_btn.pack(side="right", padx=5)
 
@@ -609,12 +673,13 @@ class SettingsWindow(ctk.CTkToplevel):
         self._show_message("Reset", "Model settings reset to defaults.\nAPI keys were not cleared.")
 
     def _show_message(self, title: str, message: str):
-        """Show info message dialog."""
+        """Show info message dialog with neon theme."""
         dialog = ctk.CTkToplevel(self)
         dialog.title(title)
         dialog.geometry("400x150")
         dialog.transient(self)
         dialog.grab_set()
+        dialog.configure(fg_color=NeonTheme.BG_BLACK)
 
         # Center on parent
         dialog.update_idletasks()
@@ -633,16 +698,19 @@ class SettingsWindow(ctk.CTkToplevel):
             dialog,
             text="OK",
             command=dialog.destroy,
-            width=100
+            width=100,
+            fg_color=NeonTheme.BUTTON_PRIMARY,
+            hover_color=NeonTheme.BUTTON_PRIMARY_HOVER
         ).pack(pady=10)
 
     def _show_error(self, title: str, message: str):
-        """Show error message dialog."""
+        """Show error message dialog with neon theme."""
         dialog = ctk.CTkToplevel(self)
         dialog.title(title)
         dialog.geometry("400x150")
         dialog.transient(self)
         dialog.grab_set()
+        dialog.configure(fg_color=NeonTheme.BG_BLACK)
 
         # Center on parent
         dialog.update_idletasks()
@@ -655,7 +723,7 @@ class SettingsWindow(ctk.CTkToplevel):
             text=message,
             font=ctk.CTkFont(size=14),
             wraplength=350,
-            text_color="red"
+            text_color=NeonTheme.SECONDARY_PINK
         ).pack(pady=30)
 
         ctk.CTkButton(
@@ -663,6 +731,6 @@ class SettingsWindow(ctk.CTkToplevel):
             text="OK",
             command=dialog.destroy,
             width=100,
-            fg_color="red",
-            hover_color="darkred"
+            fg_color=NeonTheme.BUTTON_DANGER,
+            hover_color=NeonTheme.BUTTON_DANGER_HOVER
         ).pack(pady=10)

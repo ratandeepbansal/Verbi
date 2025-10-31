@@ -15,10 +15,11 @@ from gui.animations import StatusIndicator
 from gui.backend_controller import BackendController
 from gui.settings_window import SettingsWindow
 from gui.dialogs import ErrorDialog, ConfirmationDialog, AboutDialog
+from gui.theme import NeonTheme, AnimationConfig
 
-# Set appearance mode and default color theme
-ctk.set_appearance_mode("System")  # Modes: "System" (default), "Dark", "Light"
-ctk.set_default_color_theme("blue")  # Themes: "blue" (default), "green", "dark-blue"
+# Set appearance mode to dark for neon theme
+ctk.set_appearance_mode("dark")
+ctk.set_default_color_theme("blue")  # Will be overridden by neon theme
 
 logger = logging.getLogger(__name__)
 
@@ -31,10 +32,13 @@ class VerbiMainWindow(ctk.CTk):
     def __init__(self):
         super().__init__()
 
-        # Configure window
-        self.title("Verbi - Voice Assistant")
+        # Configure window with neon theme
+        self.title("VoxVibe - AI Voice Assistant")
         self.geometry("900x700")
         self.minsize(700, 500)
+
+        # Apply neon theme - pure black background
+        self.configure(fg_color=NeonTheme.BG_BLACK)
 
         # Load and apply saved window geometry
         self.window_config_file = ".verbi_window.json"
@@ -206,30 +210,35 @@ class VerbiMainWindow(ctk.CTk):
         header_frame.grid(row=0, column=0, sticky="ew", padx=20, pady=(20, 10))
         header_frame.grid_columnconfigure(1, weight=1)
 
-        # Title
+        # Title with neon green color
         title_label = ctk.CTkLabel(
             header_frame,
-            text="Verbi",
-            font=ctk.CTkFont(size=32, weight="bold")
+            text="VoxVibe",
+            font=ctk.CTkFont(size=32, weight="bold"),
+            text_color=NeonTheme.PRIMARY
         )
         title_label.grid(row=0, column=0, sticky="w")
 
-        # Status indicator
+        # Status indicator with themed text
         self.status_label = ctk.CTkLabel(
             header_frame,
             text="Ready",
             font=ctk.CTkFont(size=14),
-            text_color="gray"
+            text_color=NeonTheme.TEXT_SECONDARY
         )
         self.status_label.grid(row=0, column=1, sticky="e", padx=(0, 10))
 
-        # Settings button (placeholder for now)
+        # Settings button with neon theme
         settings_btn = ctk.CTkButton(
             header_frame,
             text="⚙",
             font=ctk.CTkFont(size=20),
             width=40,
             height=40,
+            fg_color=NeonTheme.BG_ELEVATED,
+            hover_color=NeonTheme.BG_SURFACE,
+            border_color=NeonTheme.PRIMARY,
+            border_width=1,
             command=self.open_settings
         )
         settings_btn.grid(row=0, column=2, sticky="e")
@@ -246,9 +255,15 @@ class VerbiMainWindow(ctk.CTk):
         self.status_indicator.grid(row=0, column=0)
 
     def create_chat_area(self):
-        """Create the main chat display area."""
-        # Chat container
-        chat_container = ctk.CTkFrame(self, corner_radius=10)
+        """Create the main chat display area with neon theme."""
+        # Chat container with dark background
+        chat_container = ctk.CTkFrame(
+            self,
+            corner_radius=10,
+            fg_color=NeonTheme.BG_CHAT,
+            border_color=NeonTheme.PRIMARY,
+            border_width=1
+        )
         chat_container.grid(row=2, column=0, sticky="nsew", padx=20, pady=10)
         chat_container.grid_rowconfigure(0, weight=1)
         chat_container.grid_columnconfigure(0, weight=1)
@@ -267,7 +282,7 @@ class VerbiMainWindow(ctk.CTk):
     def add_welcome_message(self):
         """Add a welcome message to the chat."""
         self.chat_area.add_system_message(
-            "👋 Welcome to Verbi!\n\nClick the microphone button below to start talking."
+            "👋 Welcome to VoxVibe!\n\nClick the microphone button below to start talking."
         )
 
     def create_controls(self):
@@ -276,20 +291,22 @@ class VerbiMainWindow(ctk.CTk):
         controls_frame.grid(row=3, column=0, sticky="ew", padx=20, pady=(10, 20))
         controls_frame.grid_columnconfigure((0, 1, 2, 3), weight=1)
 
-        # Clear conversation button
+        # Clear conversation button with neon theme
         clear_btn = ctk.CTkButton(
             controls_frame,
             text="Clear",
             font=ctk.CTkFont(size=14),
             width=100,
             height=40,
-            fg_color="gray30",
-            hover_color="gray20",
+            fg_color=NeonTheme.BUTTON_SECONDARY,
+            hover_color=NeonTheme.BUTTON_SECONDARY_HOVER,
+            border_color=NeonTheme.BORDER_DEFAULT,
+            border_width=1,
             command=self.clear_conversation
         )
         clear_btn.grid(row=0, column=0, padx=5)
 
-        # Main microphone button (large, centered)
+        # Main microphone button (large, centered) with neon green
         self.mic_button = ctk.CTkButton(
             controls_frame,
             text="🎤",
@@ -297,35 +314,42 @@ class VerbiMainWindow(ctk.CTk):
             width=120,
             height=120,
             corner_radius=60,
-            fg_color=["#3B8ED0", "#1F6AA5"],
-            hover_color=["#36719F", "#144870"],
+            fg_color=NeonTheme.BUTTON_PRIMARY,
+            hover_color=NeonTheme.BUTTON_PRIMARY_HOVER,
+            border_color=NeonTheme.PRIMARY,
+            border_width=2,
             command=self.toggle_recording
         )
         self.mic_button.grid(row=0, column=1, padx=5, pady=10)
 
-        # Stop button
+        # Stop button with danger color
         self.stop_btn = ctk.CTkButton(
             controls_frame,
             text="Stop",
             font=ctk.CTkFont(size=14),
             width=100,
             height=40,
-            fg_color="gray30",
-            hover_color="gray20",
+            fg_color=NeonTheme.BUTTON_DANGER,
+            hover_color=NeonTheme.BUTTON_DANGER_HOVER,
+            border_color=NeonTheme.SECONDARY_PINK,
+            border_width=1,
             command=self.stop_action,
             state="disabled"
         )
         self.stop_btn.grid(row=0, column=2, padx=5)
 
-        # Demo button (for testing Phase 2 features)
+        # Demo button with cyan accent
         demo_btn = ctk.CTkButton(
             controls_frame,
             text="Demo",
             font=ctk.CTkFont(size=14),
             width=100,
             height=40,
-            fg_color="green",
-            hover_color="darkgreen",
+            fg_color=NeonTheme.BUTTON_SECONDARY,
+            hover_color=NeonTheme.BUTTON_SECONDARY_HOVER,
+            border_color=NeonTheme.SECONDARY_CYAN,
+            border_width=1,
+            text_color=NeonTheme.SECONDARY_CYAN,
             command=self.demo_conversation
         )
         demo_btn.grid(row=0, column=3, padx=5)
