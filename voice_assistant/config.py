@@ -9,20 +9,23 @@ load_dotenv()
 class Config:
     """
     Configuration class to hold the model selection and API keys.
-    
+
     Attributes:
-        TRANSCRIPTION_MODEL (str): The model to use for transcription ('openai', 'groq', 'deepgram', 'fastwhisperapi', 'local').
-        RESPONSE_MODEL (str): The model to use for response generation ('openai', 'groq', 'local').
-        TTS_MODEL (str): The model to use for text-to-speech ('openai', 'deepgram', 'elevenlabs', 'local').
+        TRANSCRIPTION_MODEL (str): The model to use for transcription ('openai', 'groq', 'deepgram', 'fastwhisperapi', 'faster-whisper', 'local').
+        RESPONSE_MODEL (str): The model to use for response generation ('openai', 'groq', 'ollama', 'lmstudio', 'local').
+        TTS_MODEL (str): The model to use for text-to-speech ('openai', 'deepgram', 'elevenlabs', 'melotts', 'cartesia', 'piper', 'local').
         OPENAI_API_KEY (str): API key for OpenAI services.
         GROQ_API_KEY (str): API key for Groq services.
         DEEPGRAM_API_KEY (str): API key for Deepgram services.
         ELEVENLABS_API_KEY (str): API key for ElevenLabs services.
+        CARTESIA_API_KEY (str): API key for Cartesia services.
         LOCAL_MODEL_PATH (str): Path to the local model.
+        LMSTUDIO_BASE_URL (str): Base URL for LM Studio local server.
+        FASTER_WHISPER_MODEL (str): Model size for faster-whisper.
     """
     # Model selection
-    TRANSCRIPTION_MODEL = 'deepgram'  # possible values: openai, groq, deepgram, fastwhisperapi
-    RESPONSE_MODEL = 'openai'  # possible values: openai, groq, ollama
+    TRANSCRIPTION_MODEL = 'deepgram'  # possible values: openai, groq, deepgram, fastwhisperapi, faster-whisper
+    RESPONSE_MODEL = 'openai'  # possible values: openai, groq, ollama, lmstudio
     TTS_MODEL = 'openai'  # possible values: openai, deepgram, elevenlabs, melotts, cartesia, piper
 
     # Piper Server configuration
@@ -36,6 +39,10 @@ class Config:
     OLLAMA_LLM="llama3:8b"
     GROQ_LLM="llama3-8b-8192"
     OPENAI_LLM="gpt-4o"
+
+    # Local Models Configuration
+    LMSTUDIO_BASE_URL = os.getenv("LMSTUDIO_BASE_URL", "http://localhost:1234")
+    FASTER_WHISPER_MODEL = os.getenv("FASTER_WHISPER_MODEL", "base")  # Options: tiny, base, small, medium, large-v3
 
     # API keys and paths
     OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -82,6 +89,12 @@ class Config:
                 if "ollama_llm" in settings:
                     Config.OLLAMA_LLM = settings["ollama_llm"]
 
+                # Update local model settings
+                if "lmstudio_base_url" in settings:
+                    Config.LMSTUDIO_BASE_URL = settings["lmstudio_base_url"]
+                if "faster_whisper_model" in settings:
+                    Config.FASTER_WHISPER_MODEL = settings["faster_whisper_model"]
+
                 # Update API keys if provided
                 if settings.get("openai_api_key"):
                     Config.OPENAI_API_KEY = settings["openai_api_key"]
@@ -109,14 +122,14 @@ class Config:
     def validate_config():
         """
         Validate the configuration to ensure all necessary environment variables are set.
-        
+
         Raises:
             ValueError: If a required environment variable is not set.
         """
         Config._validate_model('TRANSCRIPTION_MODEL', [
-            'openai', 'groq', 'deepgram', 'fastwhisperapi', 'local'])
+            'openai', 'groq', 'deepgram', 'fastwhisperapi', 'faster-whisper', 'local'])
         Config._validate_model('RESPONSE_MODEL', [
-            'openai', 'groq', 'ollama', 'local'])
+            'openai', 'groq', 'ollama', 'lmstudio', 'local'])
         Config._validate_model('TTS_MODEL', [
             'openai', 'deepgram', 'elevenlabs', 'melotts', 'cartesia', 'local', 'piper'])
 

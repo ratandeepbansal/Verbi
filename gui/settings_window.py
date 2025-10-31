@@ -68,6 +68,9 @@ class SettingsWindow(ctk.CTkToplevel):
         # LLM Model Details Section
         self._create_llm_details_section()
 
+        # Local Models Configuration Section
+        self._create_local_models_section()
+
         # API Keys Section
         self._create_api_keys_section()
 
@@ -107,7 +110,7 @@ class SettingsWindow(ctk.CTkToplevel):
         self.transcription_menu = ctk.CTkOptionMenu(
             transcription_frame,
             variable=self.transcription_var,
-            values=["openai", "groq", "deepgram", "fastwhisperapi", "local"],
+            values=["openai", "groq", "deepgram", "fastwhisperapi", "faster-whisper", "local"],
             width=200
         )
         self.transcription_menu.pack(side="right", padx=10, pady=10)
@@ -131,7 +134,7 @@ class SettingsWindow(ctk.CTkToplevel):
         self.response_menu = ctk.CTkOptionMenu(
             response_frame,
             variable=self.response_var,
-            values=["openai", "groq", "ollama", "local"],
+            values=["openai", "groq", "ollama", "lmstudio", "local"],
             width=200
         )
         self.response_menu.pack(side="right", padx=10, pady=10)
@@ -239,6 +242,64 @@ class SettingsWindow(ctk.CTkToplevel):
             width=200
         )
         self.ollama_llm_entry.pack(side="right", padx=10, pady=10)
+
+    def _create_local_models_section(self):
+        """Create local models configuration section."""
+        # Section header with neon green
+        header = ctk.CTkLabel(
+            self.main_container,
+            text="Local Models Configuration",
+            font=ctk.CTkFont(size=18, weight="bold"),
+            text_color=NeonTheme.PRIMARY
+        )
+        header.pack(anchor="w", pady=(20, 10))
+
+        # LM Studio Base URL
+        lmstudio_frame = ctk.CTkFrame(
+            self.main_container,
+            fg_color=NeonTheme.BG_ELEVATED,
+            border_color=NeonTheme.BORDER_DEFAULT,
+            border_width=1
+        )
+        lmstudio_frame.pack(fill="x", pady=5)
+
+        ctk.CTkLabel(
+            lmstudio_frame,
+            text="LM Studio URL:",
+            font=ctk.CTkFont(size=14)
+        ).pack(side="left", padx=10, pady=10)
+
+        self.lmstudio_url_var = ctk.StringVar(value="http://localhost:1234")
+        self.lmstudio_url_entry = ctk.CTkEntry(
+            lmstudio_frame,
+            textvariable=self.lmstudio_url_var,
+            width=200
+        )
+        self.lmstudio_url_entry.pack(side="right", padx=10, pady=10)
+
+        # faster-whisper Model Size
+        whisper_frame = ctk.CTkFrame(
+            self.main_container,
+            fg_color=NeonTheme.BG_ELEVATED,
+            border_color=NeonTheme.BORDER_DEFAULT,
+            border_width=1
+        )
+        whisper_frame.pack(fill="x", pady=5)
+
+        ctk.CTkLabel(
+            whisper_frame,
+            text="Whisper Model:",
+            font=ctk.CTkFont(size=14)
+        ).pack(side="left", padx=10, pady=10)
+
+        self.whisper_model_var = ctk.StringVar(value="base")
+        self.whisper_model_menu = ctk.CTkOptionMenu(
+            whisper_frame,
+            variable=self.whisper_model_var,
+            values=["tiny", "base", "small", "medium", "large-v3"],
+            width=200
+        )
+        self.whisper_model_menu.pack(side="right", padx=10, pady=10)
 
     def _create_api_keys_section(self):
         """Create API keys section."""
@@ -552,6 +613,10 @@ class SettingsWindow(ctk.CTkToplevel):
                 self.groq_llm_var.set(settings.get("groq_llm", "llama3-8b-8192"))
                 self.ollama_llm_var.set(settings.get("ollama_llm", "llama3:8b"))
 
+                # Local models configuration
+                self.lmstudio_url_var.set(settings.get("lmstudio_base_url", "http://localhost:1234"))
+                self.whisper_model_var.set(settings.get("faster_whisper_model", "base"))
+
                 # API keys (if saved)
                 self.openai_key_var.set(settings.get("openai_api_key", ""))
                 self.groq_key_var.set(settings.get("groq_api_key", ""))
@@ -583,6 +648,10 @@ class SettingsWindow(ctk.CTkToplevel):
         self.groq_llm_var.set(Config.GROQ_LLM)
         self.ollama_llm_var.set(Config.OLLAMA_LLM)
 
+        # Local models configuration
+        self.lmstudio_url_var.set(Config.LMSTUDIO_BASE_URL)
+        self.whisper_model_var.set(Config.FASTER_WHISPER_MODEL)
+
         # API keys
         self.openai_key_var.set(Config.OPENAI_API_KEY or "")
         self.groq_key_var.set(Config.GROQ_API_KEY or "")
@@ -600,6 +669,8 @@ class SettingsWindow(ctk.CTkToplevel):
                 "openai_llm": self.openai_llm_var.get(),
                 "groq_llm": self.groq_llm_var.get(),
                 "ollama_llm": self.ollama_llm_var.get(),
+                "lmstudio_base_url": self.lmstudio_url_var.get(),
+                "faster_whisper_model": self.whisper_model_var.get(),
                 "openai_api_key": self.openai_key_var.get(),
                 "groq_api_key": self.groq_key_var.get(),
                 "deepgram_api_key": self.deepgram_key_var.get(),
@@ -619,6 +690,8 @@ class SettingsWindow(ctk.CTkToplevel):
             Config.OPENAI_LLM = settings["openai_llm"]
             Config.GROQ_LLM = settings["groq_llm"]
             Config.OLLAMA_LLM = settings["ollama_llm"]
+            Config.LMSTUDIO_BASE_URL = settings["lmstudio_base_url"]
+            Config.FASTER_WHISPER_MODEL = settings["faster_whisper_model"]
 
             # Update API keys if provided
             if settings["openai_api_key"]:
